@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import axios from 'axios';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const SignUp: React.FC = () => {
@@ -21,6 +22,9 @@ const SignUp: React.FC = () => {
     password: '',
     confirm_password: '',
   });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const validateForm = (): boolean => {
     let isValid = true;
@@ -74,6 +78,21 @@ const SignUp: React.FC = () => {
     if (validateForm()) {
       console.log('Form submitted successfully!');
       console.log(apiBaseURL);
+      setLoading(true);
+      try {
+        const response = await axios.post(
+          `${apiBaseURL}/api/signup/`, // Your Django signup API endpoint
+          formData
+        );
+  
+        setMessage("Signup successful!");
+        console.log(response.data);
+      } catch (err) {
+        setError("Error during signup: " + err.response?.data?.message || "Something went wrong.");
+        console.error("Signup error:", err);
+      } finally {
+        setLoading(false);
+      }
     } else {
       console.log('Form has errors');
     }
@@ -241,7 +260,8 @@ const SignUp: React.FC = () => {
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
                 Sign Up to TailAdmin
               </h2>
-
+              {message && <div className="success-message">{message}</div>}
+              {error && <div className="error-message">{error}</div>}
               <form onSubmit={handleRegSubmit}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
@@ -442,6 +462,7 @@ const SignUp: React.FC = () => {
                 <div className="mb-5">
                   <input
                     type="submit"
+                    disabled={loading}
                     value="Create account"
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                   />
