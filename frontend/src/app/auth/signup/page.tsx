@@ -3,9 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import getConfig from 'next/config';
-const { publicRuntimeConfig } = getConfig(); // Access the configuration
-const apiBaseURL = publicRuntimeConfig.baseURL;
+const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const SignUp: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -75,6 +73,7 @@ const SignUp: React.FC = () => {
     e.preventDefault();
     if (validateForm()) {
       console.log('Form submitted successfully!');
+      console.log(apiBaseURL);
     } else {
       console.log('Form has errors');
     }
