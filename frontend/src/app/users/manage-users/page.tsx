@@ -1,7 +1,7 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import DataTable from "@/components/Tables/TableOne";
+import DataTable from "@/components/Users/ManageUsers";
 
 export const metadata: Metadata = {
   title: "Next.js Tables | TailAdmin - Next.js Dashboard Template",
