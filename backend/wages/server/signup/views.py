@@ -1,19 +1,64 @@
+import bcrypt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth.models import User
+from bson import ObjectId  # Import ObjectId for conversion
+from datetime import datetime  # Import datetime for timestamps
+from server.db import users_collection
 
 class SignupAPIView(APIView):
     def post(self, request, *args, **kwargs):
         print("Request data:", request.data)
-        username = request.data.get("username")
+        first_name = request.data.get("first_name")
+        user_name = request.data.get("user_name")
         email = request.data.get("email")
         password = request.data.get("password")
+        confirm_password = request.data.get("confirm_password")
 
-        if username and email and password:
+        if first_name and user_name and email and password:
             try:
-                user = User.objects.create_user(username=username, email=email, password=password)
-                return Response({"message": "User created successfully!"}, status=status.HTTP_201_CREATED)
+                #check username or email exists
+                existing_users = list(users_collection.find({
+                    "$or": [
+                        {"user_name": user_name},
+                        {"email": email}
+                    ]
+                }))
+                
+                signup_err = []
+                for user in existing_users:
+                    if user["user_name"] == user_name:
+                        signup_err.append({"error": "Username already exists!", "field": "user_name"})
+                    if user["email"] == email:
+                        signup_err.append({"error": "Email already registered!", "field": "email"})
+
+                if signup_err:
+                    return Response(
+                        {"errors": signup_err},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                else:
+                    # Hash the password before saving
+                    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+                    # Create a new user dictionary to store in MongoDB
+                    user_data = {
+                        "first_name": first_name,
+                        "user_name": user_name,
+                        "email": email,
+                        "password": hashed_password.decode('utf-8'),
+                        "confirm_password": confirm_password,  # Store the hashed password as a string
+                        'role_id':1,
+                        'status':'Active',
+                        "created_at": datetime.utcnow(),  # Add current timestamp
+                    }
+                    # Insert the user data into the MongoDB collection
+                    result = users_collection.insert_one(user_data)
+                    
+                    # Convert ObjectId to string
+                    user_data["_id"] = str(result.inserted_id)
+
+                    return Response({"message": "User created successfully!", "data": user_data}, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         

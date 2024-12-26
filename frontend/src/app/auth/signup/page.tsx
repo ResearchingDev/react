@@ -23,7 +23,6 @@ const SignUp: React.FC = () => {
     confirm_password: '',
   });
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   const validateForm = (): boolean => {
@@ -76,23 +75,33 @@ const SignUp: React.FC = () => {
   const handleRegSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log('Form submitted successfully!');
-      console.log(apiBaseURL);
-      setLoading(true);
-      try {
-        const response = await axios.post(
-          `${apiBaseURL}/api/signup/`, // Your Django signup API endpoint
-          formData
-        );
-  
-        setMessage("Signup successful!");
-        console.log(response.data);
-      } catch (err) {
-        setError("Error during signup: " + err.response?.data?.message || "Something went wrong.");
-        console.error("Signup error:", err);
-      } finally {
-        setLoading(false);
-      }
+      const response = await axios.post( `${apiBaseURL}/api/signup/`, formData, {
+          headers: {
+              "Content-Type": "application/json",  // Correct content type
+          }
+      })
+      .then(response => {
+          console.log('Success:', response.data);
+          setMessage(response.data.message);
+          setFormData({
+            first_name: '',
+            user_name: '',
+            email: '',
+            password: '',
+            confirm_password: '',
+          });
+      })
+      .catch(err => {
+        if (err.response && err.response.data.errors) {
+          const apiErrors: Record<string, string> = {};
+          err.response.data.errors.forEach((error: { field: string; error: string }) => {
+            apiErrors[error.field] = error.error;
+          });
+          setErrors(apiErrors);
+        } else {
+          setError('An unexpected error occurred.');
+        }
+      });
     } else {
       console.log('Form has errors');
     }
@@ -462,7 +471,6 @@ const SignUp: React.FC = () => {
                 <div className="mb-5">
                   <input
                     type="submit"
-                    disabled={loading}
                     value="Create account"
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                   />

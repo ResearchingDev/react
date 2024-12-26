@@ -1,11 +1,14 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 import json
 USER_DATA = {
     'email': 'user@example.com',
     'password': 'securepassword',
 }
+def home(request):
+    return HttpResponse("Welcome to the homepage!")
 @csrf_exempt  # This decorator allows handling POST requests without CSRF verification for simplicity (use it wisely)
 def post_data(request):
     if request.method == 'POST':

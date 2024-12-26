@@ -18,7 +18,9 @@ from django.contrib import admin
 from django.urls import path
 from server import views
 from server.signup.views import SignupAPIView
+from server.views import home  # Import the new view
 urlpatterns = [
+    path('', home, name='home'),  # Add root URL pattern
     path('admin/', admin.site.urls),
     path('post-data/', views.post_data, name='post_data'),
     path('get-data/', views.get_data, name='get_data'),
