@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const SignIn: React.FC = () => {
   const [formData, setFormData] = useState({
       email: "",
@@ -36,7 +37,7 @@ const SignIn: React.FC = () => {
           e.preventDefault();
           if (validateForm()) {
             try {
-              const postResponse  = await fetch("http://127.0.0.1:8000/post-data/", {
+              const postResponse  = await fetch(`${apiBaseURL}/post-data/`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -49,9 +50,7 @@ const SignIn: React.FC = () => {
               const postData = await postResponse.json();
               if (postResponse.ok) {
                 console.log("Data successfully posted:", postData);
-          
-                // 2. After posting, fetch data with GET request
-                const getResponse = await fetch("http://127.0.0.1:8000/get-data/", {
+                const getResponse = await fetch(`${apiBaseURL}/get-data/`, {
                   method: "GET",
                   headers: {
                     "Content-Type": "application/json",
@@ -60,7 +59,6 @@ const SignIn: React.FC = () => {
                 const getData = await getResponse.json();
                 if (getResponse.ok) {
                   console.log("Fetched data:", getData);
-                  // 3. Compare the data (for example, email or password)
                   if (getData.email === formData.email && getData.password === formData.password) {
                     console.log("Data matches!");
                   } else {
@@ -245,7 +243,7 @@ const SignIn: React.FC = () => {
                 </label>
                 <div className="relative">
                   <input
-                    type="email"
+                    type="text"
                     placeholder="Enter email or username"
                     name="email"
                     value={formData.email}
