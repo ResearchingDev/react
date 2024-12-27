@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import axios from 'axios';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const SignUp: React.FC = () => {
@@ -21,6 +22,8 @@ const SignUp: React.FC = () => {
     password: '',
     confirm_password: '',
   });
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState("");
 
   const validateForm = (): boolean => {
     let isValid = true;
@@ -72,8 +75,33 @@ const SignUp: React.FC = () => {
   const handleRegSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log('Form submitted successfully!');
-      console.log(apiBaseURL);
+      const response = await axios.post( `${apiBaseURL}/api/signup/`, formData, {
+          headers: {
+              "Content-Type": "application/json",  // Correct content type
+          }
+      })
+      .then(response => {
+          console.log('Success:', response.data);
+          setMessage(response.data.message);
+          setFormData({
+            first_name: '',
+            user_name: '',
+            email: '',
+            password: '',
+            confirm_password: '',
+          });
+      })
+      .catch(err => {
+        if (err.response && err.response.data.errors) {
+          const apiErrors: Record<string, string> = {};
+          err.response.data.errors.forEach((error: { field: string; error: string }) => {
+            apiErrors[error.field] = error.error;
+          });
+          setErrors(apiErrors);
+        } else {
+          setError('An unexpected error occurred.');
+        }
+      });
     } else {
       console.log('Form has errors');
     }
@@ -241,7 +269,8 @@ const SignUp: React.FC = () => {
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
                 Sign Up to TailAdmin
               </h2>
-
+              {message && <div className="success-message">{message}</div>}
+              {error && <div className="error-message">{error}</div>}
               <form onSubmit={handleRegSubmit}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
