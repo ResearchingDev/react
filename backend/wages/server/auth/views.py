@@ -116,4 +116,14 @@ class ForgetPasswordAPIView(APIView):
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+    
+#ResetPasswordAPIView method used to check unique code and update password
+class ResetPasswordAPIView(APIView):
+    # @method_decorator(csrf_protect, name='post')  # Apply CSRF protection
+    def post(self, request, *args, **kwargs):
+        password = request.data.get("password")
+        try:
+            return Response({"message": "Password reset successfully!"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
   

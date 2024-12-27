@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef  } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import axios from 'axios';
+import { useRouter } from 'next/navigation'
 import { getCsrfToken } from '../csrf'
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -16,6 +17,9 @@ const Forgot: React.FC = () => {
 
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+
+  /** useRouter - create new routes */
+  const router = useRouter()
 
   /** fetchCsrfToken method used to set csrf token into required variable */
   useEffect(() => {
@@ -72,6 +76,10 @@ const Forgot: React.FC = () => {
         .then(response => {
             setMessage(response.data.message);
             setFormData({email: ''});
+            // Redirect to another page after successful sign-in
+            setTimeout(() => {
+              router.push('/auth/confirm');
+            }, 2000); // Delay the redirection to show the success message for 2 seconds
         })
         .catch(err => {
           if (err.response && err.response.data.error) {

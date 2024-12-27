@@ -2,65 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const ConfirmEmail: React.FC = () => {
-  const [formData, setFormData] = useState({
-      email: "",
-      password: "",
-    });
-    const [errors, setErrors] = useState({
-        email: "",
-        password: "",
-    });
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-          ...prevData,
-          [name]: value,
-        }));
-      };
-      const validateForm = () => {
-          const newErrors: any = {};
-          let isValid = true;
-          if (!formData.email) {
-            newErrors.email = "Please enter email or username.";
-            isValid = false;
-          }
-          if (!formData.password) {
-            newErrors.password = "Please enter password.";
-            isValid = false;
-          }
-          setErrors(newErrors); 
-          return isValid; 
-      };
-      const handleSubmit = async (e: React.FormEvent) => {
-          e.preventDefault();
-          if (validateForm()) {
-            try {
-              const postResponse  = await fetch(`${apiBaseURL}/api/signin/`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  email: formData.email,
-                  password: formData.password,
-                }),
-              });
-              const postData = await postResponse.json();
-              if (postResponse.ok) {
-                console.log("Data matches!");
-              } else {
-                console.error("Failed to post data:", postData.message);
-              }
-          }
-          catch (error) {
-            console.error("Network error:", error);
-          }
-        }  else {
-            console.log("Form has errors.");
-          }
-        };
   return (    
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="min-h-screen flex flex-wrap items-center">
@@ -234,29 +176,14 @@ const ConfirmEmail: React.FC = () => {
               Success !
             </h2>
             <span className="mb-1.5 mt-2 inline-block text-center font-medium">A email has been send to <b>hello@buiadmin.com.</b> Please check for an email from company and click on the included link to reset your password.</span>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-5">
-                <input
-                  type="submit"
-                  value="Confirm Mail"
-                  className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
-                />
-              </div>
-
-              <div className="mt-6 text-center">
-                <p>
-                  Back to{" "}
-                  <Link href="/auth/signin" className="text-primary">
-                    Sign In
-                  </Link>
-                </p>
-                <p>
-                  <Link href="/auth/reset" className="text-primary">
-                    Reset Password
-                  </Link>
-                </p>
-              </div>
-            </form>
+            <div className="mt-6 text-center">
+              <p>
+                Back to{" "}
+                <Link href="/auth/signin" className="text-primary">
+                  Sign In
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>
