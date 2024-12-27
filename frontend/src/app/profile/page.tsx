@@ -1,15 +1,18 @@
+"use client"; 
+import React, { useEffect  } from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Image from "next/image";
-import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-
-export const metadata: Metadata = {
-  title: "BuiAdmin - Next.js Dashboard Template",
-  description:
-    "This is Next.js Profile page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
-};
-
+import { useRouter } from 'next/navigation'
 const Profile = () => {
+  const router = useRouter()
+  useEffect(() => {
+       const id = sessionStorage.getItem('userId');
+     if (!id) {
+       sessionStorage.clear();
+       router.push('/');
+     } 
+   }, []);
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-242.5">

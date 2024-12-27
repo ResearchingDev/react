@@ -82,7 +82,8 @@ class SigninAPIView(APIView):
             })
             if user_data:
                 if bcrypt.checkpw(password.encode('utf-8'), user_data['password'].encode('utf-8')):
-                     return Response({'message': 'Data matches!'}, status=status.HTTP_200_OK)
+                     user_id = str(user_data['_id'])
+                     return Response({'message': 'Data matches!', 'user_id': user_id}, status=status.HTTP_200_OK)
                 else:
                      return Response({'message': 'Incorrect password!'}, status=status.HTTP_400_BAD_REQUEST)
             else:
