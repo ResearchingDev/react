@@ -75,11 +75,11 @@ class SigninAPIView(APIView):
             user_data = users_collection.find_one({
                 '$or': [
                     {'email': email},  # Match by email
-                    {'username': email}  # Match by username
+                    {'user_name': email}  # Match by username
                 ]
             })
             if user_data:
-                if password == user_data['password']:
+                if bcrypt.checkpw(password.encode('utf-8'), user_data['password'].encode('utf-8')):
                      return Response({'message': 'Data matches!'}, status=status.HTTP_200_OK)
                 else:
                      return Response({'message': 'Incorrect password!'}, status=status.HTTP_400_BAD_REQUEST)
