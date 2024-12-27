@@ -4,9 +4,11 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import axios from 'axios';
+import { useRouter } from 'next/navigation'
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const SignUp: React.FC = () => {
+  /** useState is includes all form error,success,waarning messsage */
   const [formData, setFormData] = useState({
     first_name: '',
     user_name: '',
@@ -14,7 +16,6 @@ const SignUp: React.FC = () => {
     password: '',
     confirm_password: '',
   });
-
   const [errors, setErrors] = useState({
     first_name: '',
     user_name: '',
@@ -22,9 +23,16 @@ const SignUp: React.FC = () => {
     password: '',
     confirm_password: '',
   });
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-
+  /** useRouter - create new routes */
+  const router = useRouter()
+  /** handleChange method used to push form data into required obj */
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+  /** validateForm method used to validate the form details */
   const validateForm = (): boolean => {
     let isValid = true;
     const newErrors = { first_name: '', user_name: '', email: '', password: '', confirm_password: '' };
@@ -71,17 +79,17 @@ const SignUp: React.FC = () => {
     setErrors(newErrors);
     return isValid;
   };
-
+  /** handleRegSubmit method used to submit form including validation and api call */
   const handleRegSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (validateForm()) {
-      const response = await axios.post( `${apiBaseURL}/api/signup/`, formData, {
+      await axios.post( `${apiBaseURL}/api/signup/`, formData, {
           headers: {
               "Content-Type": "application/json",  // Correct content type
           }
       })
       .then(response => {
-          console.log('Success:', response.data);
           setMessage(response.data.message);
           setFormData({
             first_name: '',
@@ -90,6 +98,10 @@ const SignUp: React.FC = () => {
             password: '',
             confirm_password: '',
           });
+        // Redirect to another page after successful sign-in
+          setTimeout(() => {
+            router.push('/auth/signin');
+          }, 2000); // Delay the redirection to show the success message for 2 seconds
       })
       .catch(err => {
         if (err.response && err.response.data.errors) {
@@ -106,12 +118,6 @@ const SignUp: React.FC = () => {
       console.log('Form has errors');
     }
   };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
   return (
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
