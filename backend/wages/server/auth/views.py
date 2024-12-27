@@ -6,9 +6,12 @@ from datetime import datetime  # Import datetime for timestamps
 from server.db import users_collection # Import Mongo wa_users collection
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_protect
+from django.utils.decorators import method_decorator
 
 #SignupAPIView method used to register user
 class SignupAPIView(APIView):
+    @method_decorator(csrf_protect)  # Apply CSRF protection
     def post(self, request, *args, **kwargs):
         first_name = request.data.get("first_name")
         user_name = request.data.get("user_name")
@@ -67,6 +70,7 @@ class SignupAPIView(APIView):
 
 #SigninAPIView method used to signin user  
 class SigninAPIView(APIView):
+    @method_decorator(csrf_protect)  # Apply CSRF protection
     def post(self, request):
         try:
             data = request.data  
@@ -90,5 +94,6 @@ class SigninAPIView(APIView):
         except Exception as e:
             return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+#CsrfAPIView method used to fetch csrf token details
 def CsrfAPIView(request):
     return JsonResponse({'csrfToken': get_token(request)})    

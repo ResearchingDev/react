@@ -23,6 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/signup/', SignupAPIView.as_view(), name='signup'), # Signup API
     path('api/signin/', SigninAPIView.as_view(), name='signin'), # Signin API
-    path('csrf-token/', CsrfAPIView, name='csrf_token'), # CSRF Token API
+    path('api/csrf-token/', CsrfAPIView, name='csrf_token'), # CSRF Token API
 ]
 

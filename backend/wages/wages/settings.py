@@ -144,3 +144,5 @@ CORS_ALLOW_METHODS = [
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'None'  # For cross-origin requests
 CSRF_COOKIE_SECURE = True  # Set to True if using HTTPS
+CSRF_COOKIE_NAME = "csrftoken"  # Name of the cookie where CSRF token is stored
+CSRF_HEADER_NAME = "X-CSRFToken"  # The header name for CSRF token in requests
