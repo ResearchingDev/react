@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 // import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import SignIn from "./auth/signin/page";
-import SignUp from "./auth/signup/page";
 
 export const metadata: Metadata = {
   title:

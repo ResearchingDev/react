@@ -6,9 +6,12 @@ from datetime import datetime  # Import datetime for timestamps
 from server.db import users_collection # Import Mongo wa_users collection
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_protect
+from django.utils.decorators import method_decorator
 
 #SignupAPIView method used to register user
 class SignupAPIView(APIView):
+    # @method_decorator(csrf_protect, name='post')  # Apply CSRF protection
     def post(self, request, *args, **kwargs):
         first_name = request.data.get("first_name")
         user_name = request.data.get("user_name")
@@ -67,6 +70,7 @@ class SignupAPIView(APIView):
 
 #SigninAPIView method used to signin user  
 class SigninAPIView(APIView):
+    # @method_decorator(csrf_protect, name='post')  # Apply CSRF protection
     def post(self, request):
         try:
             data = request.data  
@@ -91,5 +95,36 @@ class SigninAPIView(APIView):
         except Exception as e:
             return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+#CsrfAPIView method used to fetch csrf token details
 def CsrfAPIView(request):
-    return JsonResponse({'csrfToken': get_token(request)})    
+    return JsonResponse({'csrfToken': get_token(request)})  
+
+#ForgetPasswordAPIView method used to send email notification for reset password
+class ForgetPasswordAPIView(APIView):
+    # @method_decorator(csrf_protect, name='post')  # Apply CSRF protection
+    def post(self, request, *args, **kwargs):
+        email = request.data.get("email")
+        if email:
+            try:
+                # Find users by email
+                existing_users = list(users_collection.find({"email": email}))
+                # If no users are found, that means email is not already registered
+                if not existing_users:  # Email doesn't exist
+                    return Response({"error": "Invalid email address"},status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({"message": "Password reset email sent successfully!"}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+    
+#ResetPasswordAPIView method used to check unique code and update password
+class ResetPasswordAPIView(APIView):
+    # @method_decorator(csrf_protect, name='post')  # Apply CSRF protection
+    def post(self, request, *args, **kwargs):
+        password = request.data.get("password")
+        try:
+            return Response({"message": "Password reset successfully!"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+  

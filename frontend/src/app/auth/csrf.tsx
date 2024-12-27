@@ -6,7 +6,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
  */
 export const getCsrfToken = async () => {
   try {
-    const response = await axios.get(`${apiBaseURL}/csrf-token/`); // Your Django backend endpoint
+    const response = await axios.get(`${apiBaseURL}/api/csrf-token/`); // Your Django backend endpoint
     return response.data.csrfToken;
   } catch (error) {
     console.error('Error fetching CSRF token:', error);

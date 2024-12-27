@@ -16,13 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from server.auth.views import SignupAPIView, SigninAPIView, CsrfAPIView
+from server.auth.views import SignupAPIView, SigninAPIView, CsrfAPIView, ForgetPasswordAPIView, ResetPasswordAPIView
 from server.views import home  # Import the new view
 urlpatterns = [
     path('', home, name='home'),  # Add root URL pattern
     path('admin/', admin.site.urls),
     path('api/signup/', SignupAPIView.as_view(), name='signup'), # Signup API
     path('api/signin/', SigninAPIView.as_view(), name='signin'), # Signin API
-    path('csrf-token/', CsrfAPIView, name='csrf_token'), # CSRF Token API
+    path('api/csrf-token/', CsrfAPIView, name='csrf_token'), # CSRF Token API
+    path('api/forgot-password/', ForgetPasswordAPIView.as_view(), name='forgot_password'), # Forget Password API
+    path('api/reset-password/', ResetPasswordAPIView.as_view(), name='reset_password'), # Reset Password API
 ]
 
