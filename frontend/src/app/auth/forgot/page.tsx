@@ -1,66 +1,91 @@
 "use client"; 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef  } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import axios from 'axios';
+import { getCsrfToken } from '../csrf'
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 const Forgot: React.FC = () => {
-  const [formData, setFormData] = useState({
-      email: "",
-      password: "",
-    });
-    const [errors, setErrors] = useState({
-        email: "",
-        password: "",
-    });
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-          ...prevData,
-          [name]: value,
-        }));
-      };
-      const validateForm = () => {
-          const newErrors: any = {};
-          let isValid = true;
-          if (!formData.email) {
-            newErrors.email = "Please enter email or username.";
-            isValid = false;
+
+  const [formData, setFormData] = useState({email: ""});
+  const [errors, setErrors] = useState({email: ""});
+
+  const [csrfToken, setCsrfToken] = useState('');
+  const isFetched = useRef(false);  // Track if the token has been fetched
+
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
+  /** fetchCsrfToken method used to set csrf token into required variable */
+  useEffect(() => {
+    // Define an async function inside useEffect
+    const fetchCsrfToken = async () => {
+      try {
+        // Ensure the token is fetched only once
+        if (isFetched.current) return;
+        const token = await getCsrfToken(); // Fetch the token from your API
+        setCsrfToken(token); // Set the token in state
+        isFetched.current = true; // Mark as fetched to avoid refetching
+      } catch (error) {
+        console.error('Failed to fetch CSRF token:', error);
+        setError('Failed to fetch CSRF token');
+      }
+    };
+
+    fetchCsrfToken(); // Call the async function
+  }, []); // Empty dependency array to run only once when the component mounts
+
+  /** handleChange method used to push form data into required obj */
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  /** validateForm method used to validate the form details */
+  const validateForm = () => {
+    const newErrors: any = {};
+    let isValid = true;
+    // Validate Email
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+      isValid = false;
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+      isValid = false;
+    }
+    setErrors(newErrors); 
+    return isValid; 
+  };
+  
+  /** handleForSubmit method used to submit form including validation and api call for forget password wth email notification*/
+  const handleForSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (validateForm()) {
+        await axios.post( `${apiBaseURL}/api/forgot-password/`, formData, {
+            headers: {
+                "Content-Type": "application/json",  // Correct content type
+                'X-CSRFToken': csrfToken,  // Include CSRF token in headers
+            }
+        })
+        .then(response => {
+            setMessage(response.data.message);
+            setFormData({email: ''});
+        })
+        .catch(err => {
+          if (err.response && err.response.data.error) {
+            const apiErrors: any = {};
+            apiErrors.email = err.response.data.error;
+            setErrors(apiErrors);
+          } else {
+            setError('An unexpected error occurred.');
           }
-          if (!formData.password) {
-            newErrors.password = "Please enter password.";
-            isValid = false;
-          }
-          setErrors(newErrors); 
-          return isValid; 
-      };
-      const handleSubmit = async (e: React.FormEvent) => {
-          e.preventDefault();
-          if (validateForm()) {
-            try {
-              const postResponse  = await fetch(`${apiBaseURL}/api/signin/`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  email: formData.email,
-                  password: formData.password,
-                }),
-              });
-              const postData = await postResponse.json();
-              if (postResponse.ok) {
-                console.log("Data matches!");
-              } else {
-                console.error("Failed to post data:", postData.message);
-              }
-          }
-          catch (error) {
-            console.error("Network error:", error);
-          }
-        }  else {
-            console.log("Form has errors.");
-          }
-        };
+        });
+      } else {
+        console.log('Form has errors');
+      }
+    };
   return (    
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="min-h-screen flex flex-wrap items-center">
@@ -218,7 +243,8 @@ const Forgot: React.FC = () => {
               Forgot your password?
             </h2>
             <span className="mb-1.5 mt-2 block font-medium">Enter the email address you used when you joined and we’ll send you instructions to reset your password.</span>
-            <form onSubmit={handleSubmit}>
+            {<div className="success-message">{message}</div>}
+            <form onSubmit={handleForSubmit}>
               <div className="mb-4">
                 <label className="mb-2.5 block font-medium text-black dark:text-white">
                   Email
@@ -226,9 +252,9 @@ const Forgot: React.FC = () => {
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="example@buiadmin.com"
                     name="email"
                     value={formData.email}
+                    placeholder="Enter your email"
                     onChange={handleChange}
                     className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />

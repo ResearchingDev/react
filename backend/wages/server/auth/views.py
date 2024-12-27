@@ -96,4 +96,24 @@ class SigninAPIView(APIView):
 
 #CsrfAPIView method used to fetch csrf token details
 def CsrfAPIView(request):
-    return JsonResponse({'csrfToken': get_token(request)})    
+    return JsonResponse({'csrfToken': get_token(request)})  
+
+#ForgetPasswordAPIView method used to send email notification for reset password
+class ForgetPasswordAPIView(APIView):
+    # @method_decorator(csrf_protect, name='post')  # Apply CSRF protection
+    def post(self, request, *args, **kwargs):
+        email = request.data.get("email")
+        if email:
+            try:
+                # Find users by email
+                existing_users = list(users_collection.find({"email": email}))
+                # If no users are found, that means email is not already registered
+                if not existing_users:  # Email doesn't exist
+                    return Response({"error": "Invalid email address"},status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({"message": "Password reset email sent successfully!"}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+  
