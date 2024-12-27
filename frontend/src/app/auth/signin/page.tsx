@@ -2,8 +2,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from 'next/navigation'
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const SignIn: React.FC = () => {
+  const router = useRouter()
+  const [message, setMessage] = useState('');
   const [formData, setFormData] = useState({
       email: "",
       password: "",
@@ -49,19 +52,23 @@ const SignIn: React.FC = () => {
               });
               const postData = await postResponse.json();
               if (postResponse.ok) {
-                console.log("Data matches!");
+                router.push('/profile')
               } else {
-                console.error("Failed to post data:", postData.message);
+                setMessage(postData.message);
+                setTimeout(() => {
+                  setMessage('');
+                }, 1000);
+                console.log("Failed to post data:", postData.message);
               }
           }
           catch (error) {
-            console.error("Network error:", error);
+            console.log("Network error:", error);
           }
         }  else {
             console.log("Form has errors.");
           }
         };
-  return (    
+  return ( 
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="flex flex-wrap items-center">
         <div className="hidden w-full xl:block xl:w-1/2">
@@ -213,6 +220,7 @@ const SignIn: React.FC = () => {
         </div>
 
         <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
+        {message && ( <div style={{ textAlign: 'center',color: 'red',fontSize: 'large',fontWeight: 'bold',}} > {message} </div> )}
           <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
             <span className="mb-1.5 block font-medium">Start for free</span>
             <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
