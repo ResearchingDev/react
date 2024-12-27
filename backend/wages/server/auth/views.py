@@ -11,7 +11,7 @@ from django.utils.decorators import method_decorator
 
 #SignupAPIView method used to register user
 class SignupAPIView(APIView):
-    @method_decorator(csrf_protect)  # Apply CSRF protection
+    @method_decorator(csrf_protect, name='post')  # Apply CSRF protection
     def post(self, request, *args, **kwargs):
         first_name = request.data.get("first_name")
         user_name = request.data.get("user_name")
@@ -70,7 +70,7 @@ class SignupAPIView(APIView):
 
 #SigninAPIView method used to signin user  
 class SigninAPIView(APIView):
-    @method_decorator(csrf_protect)  # Apply CSRF protection
+    @method_decorator(csrf_protect, name='post')  # Apply CSRF protection
     def post(self, request):
         try:
             data = request.data  

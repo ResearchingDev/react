@@ -1,6 +1,6 @@
 'use client'; // This enables client-side interactivity
 
-import React, { useState, useEffect  } from "react";
+import React, { useState, useEffect, useRef   } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import axios from 'axios';
@@ -25,23 +25,31 @@ const SignUp: React.FC = () => {
     confirm_password: '',
   });
   const [csrfToken, setCsrfToken] = useState('');
+  const isFetched = useRef(false);  // Track if the token has been fetched
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   /** useRouter - create new routes */
   const router = useRouter()
   /** fetchCsrfToken method used to set csrf token into required variable */
+ 
   useEffect(() => {
+    // Define an async function inside useEffect
     const fetchCsrfToken = async () => {
       try {
-        const token = await getCsrfToken();  // Fetch CSRF token
-        setCsrfToken(token);
+        // Ensure the token is fetched only once
+        if (isFetched.current) return;
+        const token = await getCsrfToken(); // Fetch the token from your API
+        setCsrfToken(token); // Set the token in state
+        isFetched.current = true; // Mark as fetched to avoid refetching
       } catch (error) {
-        console.error('Failed to fetch CSRF token');
+        console.error('Failed to fetch CSRF token:', error);
+        setError('Failed to fetch CSRF token');
       }
     };
 
-    fetchCsrfToken();
-  }, []);
+    fetchCsrfToken(); // Call the async function
+  }, []); // Empty dependency array to run only once when the component mounts
+  
   /** handleChange method used to push form data into required obj */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
