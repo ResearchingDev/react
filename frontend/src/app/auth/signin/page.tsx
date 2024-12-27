@@ -1,11 +1,13 @@
 "use client"; 
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from 'next/navigation'
+import { getCsrfToken } from '../csrf'
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const SignIn: React.FC = () => {
   const router = useRouter()
+  const [csrfToken, setCsrfToken] = useState('');
   const [message, setMessage] = useState('');
   const [formData, setFormData] = useState({
       email: "",
@@ -15,6 +17,18 @@ const SignIn: React.FC = () => {
         email: "",
         password: "",
     });
+      /** fetchCsrfToken method used to set csrf token into required variable */
+    useEffect(() => {
+      const fetchCsrfToken = async () => {
+        try {
+          const token = await getCsrfToken();  // Fetch CSRF token
+          setCsrfToken(token);
+        } catch (error) {
+          console.error('Failed to fetch CSRF token');
+        }
+      };
+    fetchCsrfToken();
+  }, []);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -44,6 +58,7 @@ const SignIn: React.FC = () => {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
+                  'X-CSRFToken': csrfToken,  // Include CSRF token in headers
                 },
                 body: JSON.stringify({
                   email: formData.email,
