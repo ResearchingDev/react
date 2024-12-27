@@ -1,55 +1,88 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import CheckboxFive from "@/components/Checkboxes/CheckboxFive";
-import CheckboxFour from "@/components/Checkboxes/CheckboxFour";
-import CheckboxOne from "@/components/Checkboxes/CheckboxOne";
-import CheckboxThree from "@/components/Checkboxes/CheckboxThree";
-import CheckboxTwo from "@/components/Checkboxes/CheckboxTwo";
-import SwitcherFour from "@/components/Switchers/SwitcherFour";
-import SwitcherOne from "@/components/Switchers/SwitcherOne";
-import SwitcherThree from "@/components/Switchers/SwitcherThree";
-import SwitcherTwo from "@/components/Switchers/SwitcherTwo";
-import DatePickerTwo from "@/components/FormElements/DatePicker/DatePickerTwo";
-import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
-import MultiSelect from "@/components/FormElements/MultiSelect";
-import SelectGroupTwo from "@/components/SelectGroup/SelectGroupTwo";
-import Link from "next/link";
 import { useState, useEffect } from 'react';
-
+import { toast } from "react-toastify";
+const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
+type Errors = {
+  userrole?: string;
+  status?: string;
+};
 const FormElements = () => {
-    const [userrole, setUserRole] = useState('');
-    const [status, setStatus] = useState('');
-    const [errors, setErrors] = useState({});
-    const [isFormValid, setIsFormValid] = useState(false);
-    useEffect(() => {
-      validateForm();
+  const [userrole, setUserRole] = useState<string>("");
+  const [status, setStatus] = useState<string>("");
+  const [errors, setErrors] = useState<Errors>({});
+  const [isFormValid, setIsFormValid] = useState<boolean>(false);
+  const [selectedOption, setSelectedOption] = useState<string>("");
+  const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
+  const [formData, setFormData] = useState({
+    userrole: "",
+    status: "",
+  });
+  const changeTextColor = () => {
+    setIsOptionSelected(true);
+  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    if (name === "userrole") {
+      setUserRole(value);
+    } else if (name === "status") {
+      setStatus(value);
+    }
+  };
+  useEffect(() => {
+    validateForm();
   }, [userrole, status]);
 
   // Validate form
   const validateForm = () => {
-    let errors = {};
+    let errors: Errors = {};
 
     if (!userrole) {
-        errors.userrole = 'User role is required.';
+      errors.userrole = "User role is required.";
     }
 
     if (!status) {
-        errors.status = 'Status is required.';
-    } else if (!/\S+@\S+\.\S+/.test(status)) {
-        errors.status = 'Status is invalid.';
+      errors.status = "Status is required.";
     }
 
     setErrors(errors);
     setIsFormValid(Object.keys(errors).length === 0);
-};
+  };
 // Submit
-const handleSubmit = () => {
-    if (isFormValid) {
-        console.log('Form submitted successfully!');
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!userrole || !status) {
+    toast.error("Form fields are empty or invalid.");
+    return;
+  }
+
+  const payload = { userrole, status };
+  try {
+    const response = await fetch(`${apiBaseURL}/api/manageuserrole/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      toast.success(data.message);
+      setFormData({
+        userrole: '',
+        status: '',
+      });
     } else {
-        console.log('Form has errors. Please correct them.');
+      toast.error(data.message || "Failed to add user role.");
     }
+  } catch (error) {
+    toast.error("Network error. Please try again.");
+  }
 };
+//Custom form error styles
 const styles = {
   container: {
       display: 'flex',
@@ -109,48 +142,57 @@ const styles = {
   return (
     <>
       <Breadcrumb pageName="Add User" />
-      <div className="grid grid-cols-1 gap-9 sm:grid-cols-2 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="grid grid-cols-1 gap-9">
-          <div className="flex flex-col gap-5.5 p-6.5">
-            <div>
-              <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                User Role
-              </label>
-              <input
-                type="text"
-                placeholder="Default Input"
-                className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                style={styles.input}
-                value={userrole}
-                onChange={(e) => setUserRole(e.target.value)}
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 gap-9 sm:grid-cols-2 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div className="grid grid-cols-1 gap-9">
+            <div className="flex flex-col gap-5.5 p-6.5">
+              <div>
+                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  User Role
+                </label>
+                <input
+                  type="text"
+                  name="userrole"
+                  placeholder="Enter User Role"
+                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  value={userrole}
+                  onChange={handleChange} // Use handleChange here
                 />
-              {errors.userrole && <p style={styles.error}>{errors.userrole}</p>}
+                {errors.userrole && <p style={styles.error}>{errors.userrole}</p>}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="grid grid-cols-1 gap-9">
-          <div className="flex flex-col gap-5.5 p-6.5">
-            <div>
+          <div className="grid grid-cols-1 gap-9">
+            <div className="flex flex-col gap-5.5 p-6.5">
+              <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                Status
+                  Status
                 </label>
                 <div>
-                <SelectGroupTwo />
+                  <select
+                    value={status}
+                    name="status"
+                    onChange={handleChange} // Use handleChange here
+                    className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent px-12 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input`}
+                  >
+                    <option value="" disabled>
+                      Select Status
+                    </option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
                 </div>
                 {errors.status && <p style={styles.error}>{errors.status}</p>}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <Link
-        href="#"
-        className="mt-3 inline-flex items-center justify-center float-right rounded-md bg-primary px-10 py-4 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
-        style={{ ...styles.button, opacity: isFormValid ? 1 : 0.5 }}
-                    disabled={!isFormValid}
-                    onClick={handleSubmit}
-                    >
-        Submit
-        </Link>
+        <input
+          type="submit"
+          value="Submit"
+          className="mt-3 inline-flex items-center justify-center float-right rounded-md bg-primary px-10 py-4 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+        />
+      </form>
 
       {/* <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
         <div className="flex flex-col gap-9">
