@@ -140,3 +140,7 @@ CORS_ALLOW_METHODS = [
     'DELETE',
     'OPTIONS',
 ]
+
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'None'  # For cross-origin requests
+CSRF_COOKIE_SECURE = True  # Set to True if using HTTPS

@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime  # Import datetime for timestamps
 from server.db import users_collection # Import Mongo wa_users collection
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
 
 #SignupAPIView method used to register user
 class SignupAPIView(APIView):
@@ -88,3 +90,5 @@ class SigninAPIView(APIView):
         except Exception as e:
             return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+def CsrfAPIView(request):
+    return JsonResponse({'csrfToken': get_token(request)})    

@@ -1,10 +1,11 @@
 'use client'; // This enables client-side interactivity
 
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import axios from 'axios';
 import { useRouter } from 'next/navigation'
+import { getCsrfToken } from '../csrf'
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const SignUp: React.FC = () => {
@@ -23,10 +24,24 @@ const SignUp: React.FC = () => {
     password: '',
     confirm_password: '',
   });
+  const [csrfToken, setCsrfToken] = useState('');
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   /** useRouter - create new routes */
   const router = useRouter()
+  /** fetchCsrfToken method used to set csrf token into required variable */
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const token = await getCsrfToken();  // Fetch CSRF token
+        setCsrfToken(token);
+      } catch (error) {
+        console.error('Failed to fetch CSRF token');
+      }
+    };
+
+    fetchCsrfToken();
+  }, []);
   /** handleChange method used to push form data into required obj */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -87,6 +102,7 @@ const SignUp: React.FC = () => {
       await axios.post( `${apiBaseURL}/api/signup/`, formData, {
           headers: {
               "Content-Type": "application/json",  // Correct content type
+              'X-CSRFToken': csrfToken,  // Include CSRF token in headers
           }
       })
       .then(response => {
@@ -534,5 +550,4 @@ const SignUp: React.FC = () => {
       </div>
   );
 };
-
 export default SignUp;
