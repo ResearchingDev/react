@@ -16,14 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from server.api.views import PostDataView, GetDataView
-from server.signup.views import SignupAPIView
+from server.auth.views import SignupAPIView, SigninAPIView
 from server.views import home  # Import the new view
 urlpatterns = [
     path('', home, name='home'),  # Add root URL pattern
     path('admin/', admin.site.urls),
-    path('post-data/', PostDataView.as_view(), name='post_data'),
-    path('get-data/', GetDataView.as_view(), name='get_data'),
-    path('api/signup/', SignupAPIView.as_view(), name='signup'),
+    path('api/signup/', SignupAPIView.as_view(), name='signup'), # Signup API
+    path('api/signin/', SigninAPIView.as_view(), name='signin'), # Signin API
 ]
 

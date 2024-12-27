@@ -2,13 +2,12 @@ import bcrypt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from bson import ObjectId  # Import ObjectId for conversion
 from datetime import datetime  # Import datetime for timestamps
-from server.db import users_collection
+from server.db import users_collection # Import Mongo wa_users collection
 
+#SignupAPIView method used to register user
 class SignupAPIView(APIView):
     def post(self, request, *args, **kwargs):
-        print("Request data:", request.data)
         first_name = request.data.get("first_name")
         user_name = request.data.get("user_name")
         email = request.data.get("email")
@@ -63,3 +62,29 @@ class SignupAPIView(APIView):
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response({"error": "Invalid data!"}, status=status.HTTP_400_BAD_REQUEST)
+
+#SigninAPIView method used to signin user  
+class SigninAPIView(APIView):
+    def post(self, request):
+        try:
+            data = request.data  
+            email = data.get('email')
+            password = data.get('password')
+            if not email or not password:
+                   return Response({'message': 'Email and password are required!'}, status=status.HTTP_400_BAD_REQUEST)
+            user_data = users_collection.find_one({
+                '$or': [
+                    {'email': email},  # Match by email
+                    {'username': email}  # Match by username
+                ]
+            })
+            if user_data:
+                if password == user_data['password']:
+                     return Response({'message': 'Data matches!'}, status=status.HTTP_200_OK)
+                else:
+                     return Response({'message': 'Incorrect password!'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'message': 'User not found!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+

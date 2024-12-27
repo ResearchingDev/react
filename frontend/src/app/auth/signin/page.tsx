@@ -37,7 +37,7 @@ const SignIn: React.FC = () => {
           e.preventDefault();
           if (validateForm()) {
             try {
-              const postResponse  = await fetch(`${apiBaseURL}/post-data/`, {
+              const postResponse  = await fetch(`${apiBaseURL}/api/signin/`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -49,24 +49,7 @@ const SignIn: React.FC = () => {
               });
               const postData = await postResponse.json();
               if (postResponse.ok) {
-                console.log("Data successfully posted:", postData);
-                const getResponse = await fetch(`${apiBaseURL}/get-data/`, {
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                });
-                const getData = await getResponse.json();
-                if (getResponse.ok) {
-                  console.log("Fetched data:", getData);
-                  if (getData.email === formData.email && getData.password === formData.password) {
-                    console.log("Data matches!");
-                  } else {
-                    console.log("Data does not match.");
-                  }
-                } else {
-                  console.error("Failed to fetch data:", getData.message);
-                }
+                console.log("Data matches!");
               } else {
                 console.error("Failed to post data:", postData.message);
               }
