@@ -1,5 +1,5 @@
 import bcrypt
-import geoip2.database
+import socket
 import jwt
 import secrets
 from bson import ObjectId
@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime, timedelta  # Import datetime for timestamps
 from server.db import users_collection # Import Mongo wa_users collection
-from server.db import login_activity_collection # Import Mongo wa_users collection
+from server.db import login_activity_collection # Import Mongo wa_log_history collection
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
@@ -86,7 +86,7 @@ class SigninAPIView(APIView):
             email = data.get('email')
             password = data.get('password')
             if not email or not password:
-                   return Response({'message': 'Email and password are required!'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': 'Email and password are required!'}, status=status.HTTP_400_BAD_REQUEST)
             user_data = users_collection.find_one({
                 '$or': [
                     {'email': email},  # Match by email
@@ -95,54 +95,41 @@ class SigninAPIView(APIView):
             })
             if user_data:
                 if bcrypt.checkpw(password.encode('utf-8'), user_data['password'].encode('utf-8')):
-                     user_id = str(user_data['_id'])
-                     login_timestamp = datetime.now()
-                     login_device = request.headers.get('User-Agent', 'Unknown device')
-                     ip_address = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
-                     location = self.get_device_location(ip_address)
-                     browser_details = self.get_browser_details(login_device)
-                     login_entry = {
-                             'user_id': user_id,
-                             'login_timestamp': login_timestamp,
-                             'login_device': login_device,
-                             'ip_address' : ip_address,
-                             'device_location' : location,
-                             'browser_details' : browser_details,
-                             'logout_timestamp' : '',
-                        }
-                        login_activity_collection.insert_one(login_entry)
-                     return Response({'message': 'Data matches!', 'user_id': user_id}, status=status.HTTP_200_OK)
+                    user_id = str(user_data['_id'])
+                    login_timestamp = datetime.now()
+                    login_device = request.headers.get('User-Agent', 'Unknown device')
+                    ip_address = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
+                    location = socket.gethostbyaddr(ip_address)[0]
+                    ua = parse(login_device)
+                    browser_details = {
+                        'browser': ua.browser.family,
+                        'browser_version': ua.browser.version,
+                        'os': ua.os.family,
+                        'os_version': ua.os.version,
+                        'device': ua.device.family
+                    }
+                    browser_details = browser_details
+                    
+                    login_entry = {
+                    'user_id': user_id,
+                    'login_timestamp': login_timestamp,
+                    'login_device': login_device,
+                    'ip_address' : ip_address,
+                    'device_location' : location,
+                    'browser_details' : browser_details,
+                    'logout_timestamp' : '',
+                    }
+
+                    result_log = login_activity_collection.insert_one(login_entry)
+
+                    return Response({'message': 'Data matches!', 'user_id': user_id}, status=status.HTTP_200_OK)
                 else:
                      return Response({'message': 'Incorrect password!'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response({'message': 'User not found!'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-           
-def get_device_location(self, ip_address):
-       try:
-         reader = geoip2.database.Reader('GeoLite2-City.mmdb')
-         response = reader.city(ip_address)
-         city = response.city.name if response.city.name else 'Unknown city'
-         country = response.country.name if response.country.name else 'Unknown country'
-         region = response.subdivisions.most_specific.name if response.subdivisions else 'Unknown region'
-         return f"{city}, {region}, {country}"
-    except Exception as e:
-        return {'city': 'Unknown', 'country': 'Unknown', 'region': 'Unknown', 'coordinates': 'Unknown'}
-
-def get_browser_details(self, user_agent):
-    try:
-        ua = parse(user_agent)
-        browser_details = {
-            'browser': ua.browser.family,
-            'browser_version': ua.browser.version,
-            'os': ua.os.family,
-            'os_version': ua.os.version,
-            'device': ua.device.family
-        }
-        return browser_details
-    except Exception as e:
-        return {'browser': 'Unknown', 'os': 'Unknown', 'device': 'Unknown'}
+        
 
 #CsrfAPIView method used to fetch csrf token details
 def CsrfAPIView(request):
