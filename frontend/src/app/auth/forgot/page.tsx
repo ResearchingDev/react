@@ -1,5 +1,7 @@
 "use client"; 
 import React, { useState, useEffect, useRef  } from "react";
+import Label from '@/components/Forms/LabelField';
+import InputField from '@/components/Forms/InputField';
 import Link from "next/link";
 import Image from "next/image";
 import axios from 'axios';
@@ -255,17 +257,14 @@ const Forgot: React.FC = () => {
             {error && <div className="bg-red-100 text-red-700 border border-red-400 px-4 py-2 rounded-md">{error}</div>}
             <form onSubmit={handleForSubmit}>
               <div className="mb-4">
-                <label className="mb-2.5 block font-medium text-black dark:text-white">
-                  Email
-                </label>
+                <Label htmlFor="email" text="Email" />
                 <div className="relative">
-                  <input
+                  <InputField
                     type="text"
                     name="email"
                     value={formData.email}
                     placeholder="Enter your email"
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
                   <span className="absolute right-4 top-4">
                     <svg
@@ -300,11 +299,6 @@ const Forgot: React.FC = () => {
                   Back to{" "}
                   <Link href="/auth/signin" className="text-primary">
                     Sign In
-                  </Link>
-                </p>
-                <p>
-                  <Link href="/auth/reset" className="text-primary">
-                    Reset Password
                   </Link>
                 </p>
               </div>
