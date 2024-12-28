@@ -1,7 +1,7 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import DataTable from "@/components/Users/ManageUsers";
+import ManageUserList from "@/components/Users/ManageUsers";
 
 export const metadata: Metadata = {
   title: "BuiAdmin - Next.js Dashboard Template",
@@ -12,10 +12,10 @@ export const metadata: Metadata = {
 const TablesPage = () => {
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Tables" />
-
+      <Breadcrumb pageName="Manage Users" />
+      
       <div className="flex flex-col gap-10">
-        <DataTable />
+        <ManageUserList />
       </div>
     </DefaultLayout>
   );
