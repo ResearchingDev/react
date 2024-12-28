@@ -9,6 +9,7 @@ import { getCsrfToken } from '../csrf'
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const SignIn: React.FC = () => {
   const router = useRouter()
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [csrfToken, setCsrfToken] = useState('');
   const [message, setMessage] = useState('');
   const [formData, setFormData] = useState({
@@ -21,6 +22,12 @@ const SignIn: React.FC = () => {
     });
       /** fetchCsrfToken method used to set csrf token into required variable */
     useEffect(() => {
+      const id = sessionStorage.getItem("userId");
+      if (id) {
+        router.replace("/profile"); // Use `replace` to prevent adding SignIn to the browser history
+      } else {
+        setIsCheckingSession(false); // Allow rendering when no session is found
+      }
       const fetchCsrfToken = async () => {
         try {
           const token = await getCsrfToken();  // Fetch CSRF token
@@ -31,6 +38,9 @@ const SignIn: React.FC = () => {
       };
     fetchCsrfToken();
   }, []);
+   if (isCheckingSession) {
+    return null; // Render nothing while checking session
+  }
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({

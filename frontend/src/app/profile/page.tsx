@@ -6,13 +6,16 @@ import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { useRouter } from 'next/navigation'
 const Profile = () => {
   const router = useRouter()
+  const id = sessionStorage.getItem('userId');
   useEffect(() => {
-       const id = sessionStorage.getItem('userId');
      if (!id) {
        sessionStorage.clear();
        router.push('/');
      } 
    }, []);
+  if (!id) {
+    return null; 
+  }
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-242.5">

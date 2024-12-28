@@ -1,69 +1,59 @@
+"use client"
+import React from "react";
+import DataTable from "react-data-table-component";
 
-'use client'
-import React from 'react';
-import { useTable } from 'react-table';
 
-const DataTable  = () => {
-  const data = React.useMemo(
-    () => [
-      { col1: 'Hello', col2: 'World' },
-      { col1: 'React', col2: 'Table' },
-      { col1: 'Next.js', col2: 'Rocks!' },
-      { col1: 'Hello', col2: 'World' },
-      { col1: 'React', col2: 'Table' },
-      { col1: 'Next.js', col2: 'Rocks!' },
-      { col1: 'Hello', col2: 'World' },
-      { col1: 'React', col2: 'Table' },
-      { col1: 'Next.js', col2: 'Rocks!' },
-      { col1: 'Hello', col2: 'World' },
-      { col1: 'React', col2: 'Table' },
-      { col1: 'Next.js', col2: 'Rocks!' },
-    ],
-    []
-  );
+const data = [
+  { id: 1, name: "Richard Crossley", email: "richard.crossley@buiadmin.com", role: "Standard", msince: "07/25/2022 15:02", lastlog: "07/25/2022 15:02", status: "Active" },
+  { id: 1, name: "Richard Crossley", email: "richard.crossley@buiadmin.com", role: "Standard", msince: "07/25/2022 15:02", lastlog: "07/25/2022 15:02", status: "Active" },
+  { id: 1, name: "Richard Crossley", email: "richard.crossley@buiadmin.com", role: "Standard", msince: "07/25/2022 15:02", lastlog: "07/25/2022 15:02", status: "Active" },
+  { id: 1, name: "Richard Crossley", email: "richard.crossley@buiadmin.com", role: "Standard", msince: "07/25/2022 15:02", lastlog: "07/25/2022 15:02", status: "Active" },
+  { id: 1, name: "Richard Crossley", email: "richard.crossley@buiadmin.com", role: "Standard", msince: "07/25/2022 15:02", lastlog: "07/25/2022 15:02", status: "Active" },
+  { id: 1, name: "Richard Crossley", email: "richard.crossley@buiadmin.com", role: "Standard", msince: "07/25/2022 15:02", lastlog: "07/25/2022 15:02", status: "Active" },
+];
 
-  const columns = React.useMemo(
-    () => [
-      { Header: 'Column 1', accessor: 'col1' }, // accessor is the key in the data
-      { Header: 'Column 2', accessor: 'col2' },
-    ],
-    []
-  );
-
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({
-    columns,
-    data,
-  });
-
+const columns = [
+  {
+    name: "Name",
+    selector: (row: { name: any; }) => row.name,
+    sortable: true,
+  },
+  {
+    name: "Email",
+    selector: (row: { email: any; }) => row.email,
+    sortable: true,
+  },
+  {
+    name: "User Role",
+    selector: (row: { role: any; }) => row.role,
+    sortable: true,
+  },
+  {
+    name: "Member Since",
+    selector: (row: { msince: any; }) => row.msince,
+    sortable: true,
+  },
+  {
+    name: "Last Logged in",
+    selector: (row: { lastlog: any; }) => row.lastlog,
+    sortable: true,
+  },
+  {
+    name: "Status",
+    selector: (row: { status: any; }) => row.status,
+    sortable: true,
+  },
+];
+const ManageUserList = () => {
   return (
-    <table {...getTableProps()} className='min-w-full border-collapse border border-gray-200' style={{ border: 'solid 1px black' }}>
-      <thead>
-        {headerGroups.map(headerGroup => (
-          <tr className="bg-gray-100" {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map(column => (
-              <th {...column.getHeaderProps()} style={{ borderBottom: 'solid 3px red', background: 'aliceblue', color: 'black' }}>
-                {column.render('Header')}
-              </th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map(row => {
-          prepareRow(row);
-          return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map(cell => (
-                <td {...cell.getCellProps()} style={{ padding: '10px', border: 'solid 1px gray' }}>
-                  {cell.render('Cell')}
-                </td>
-              ))}
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+    <div className="custom-datatable">
+      <DataTable
+        columns={columns}
+        data={data}
+        pagination
+      />
+    </div>
   );
 };
 
-export default DataTable;
+export default ManageUserList;
