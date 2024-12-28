@@ -78,7 +78,7 @@ const Forgot: React.FC = () => {
             setFormData({email: ''});
             // Redirect to another page after successful sign-in
             setTimeout(() => {
-              router.push('/auth/confirm');
+               router.push(`/auth/reset/${response.data.token}`);
             }, 2000); // Delay the redirection to show the success message for 2 seconds
         })
         .catch(err => {
@@ -251,7 +251,8 @@ const Forgot: React.FC = () => {
               Forgot your password?
             </h2>
             <span className="mb-1.5 mt-2 block font-medium">Enter the email address you used when you joined and we’ll send you instructions to reset your password.</span>
-            {<div className="success-message">{message}</div>}
+            {message && <div className="bg-green-100 text-green-700 border border-green-400 px-4 py-2 rounded-md">{message}</div>}
+            {error && <div className="bg-red-100 text-red-700 border border-red-400 px-4 py-2 rounded-md">{error}</div>}
             <form onSubmit={handleForSubmit}>
               <div className="mb-4">
                 <label className="mb-2.5 block font-medium text-black dark:text-white">

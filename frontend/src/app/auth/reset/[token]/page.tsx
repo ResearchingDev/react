@@ -1,11 +1,20 @@
 "use client"; 
+
 import React, { useState, useEffect, useRef   } from "react";
+import { useRouter, usePathname } from 'next/navigation'
 import Link from "next/link";
 import Image from "next/image";
 import axios from 'axios';
-import { getCsrfToken } from '../csrf'
+
+import { getCsrfToken } from '../../csrf'
+
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 const ResetPassword: React.FC = () => {
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const [jwtToken, setJwtToken] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({password: "",confirm_password: ""});
   const [errors, setErrors] = useState({password: "",confirm_password: ""});
@@ -16,6 +25,16 @@ const ResetPassword: React.FC = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
+
+   // Extract the JWT token from the pathname (URL path)
+   useEffect(() => {
+    const pathParts = pathname?.split("/");  // Split the pathname into parts
+    const token = pathParts ? pathParts[pathParts.length - 1] : null;  // Get the last part of the path as token
+    if (token) {
+      setJwtToken(token); // Set the token in state
+    }
+  }, [pathname]);  // Watch for changes in pathname
+
   /** fetchCsrfToken method used to set csrf token into required variable */
   useEffect(() => {
     // Define an async function inside useEffect
@@ -23,8 +42,8 @@ const ResetPassword: React.FC = () => {
       try {
         // Ensure the token is fetched only once
         if (isFetched.current) return;
-        const token = await getCsrfToken(); // Fetch the token from your API
-        setCsrfToken(token); // Set the token in state
+        const csrftoken = await getCsrfToken(); // Fetch the token from your API
+        setCsrfToken(csrftoken); // Set the token in state
         isFetched.current = true; // Mark as fetched to avoid refetching
       } catch (error) {
         console.error('Failed to fetch CSRF token:', error);
@@ -67,7 +86,9 @@ const ResetPassword: React.FC = () => {
   const handleResetForSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      await axios.post( `${apiBaseURL}/api/reset-password/`, formData, {
+      await axios.post( `${apiBaseURL}/api/reset-password/`, {
+        token: jwtToken, new_password : formData.password
+      }, {
           headers: {
               "Content-Type": "application/json",  // Correct content type
               'X-CSRFToken': csrfToken,  // Include CSRF token in headers
@@ -76,6 +97,10 @@ const ResetPassword: React.FC = () => {
       .then(response => {
           setMessage(response.data.message);
           setFormData({password: '',confirm_password:''});
+          // Redirect to another page after successful sign-in
+          setTimeout(() => {
+            router.push(`/auth/signin/`);
+          }, 2000); // Delay the redirection to show the success message for 2 seconds
       })
       .catch(err => {
         if (err.response && err.response.data.error) {
@@ -245,8 +270,8 @@ const ResetPassword: React.FC = () => {
               Reset Password?
             </h2>
             <span className="mb-1.5 mt-2 block font-medium">Enter your new password and confirm it another time in the field below.</span>
-            {message && <div className="success-message">{message}</div>}
-            {error && <div className="error-message">{error}</div>}
+            {message && <div className="bg-green-100 text-green-700 border border-green-400 px-4 py-2 rounded-md">{message}</div>}
+            {error && <div className="bg-red-100 text-red-700 border border-red-400 px-4 py-2 rounded-md">{error}</div>}
             <form onSubmit={handleResetForSubmit}>
               <div className="mb-4">
                 <label className="mb-2.5 block font-medium text-black dark:text-white">
