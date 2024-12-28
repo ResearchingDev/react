@@ -15,6 +15,7 @@
     "jsvectormap": "^1.6.0",
     "next": "^14.2.4",
     "react": "^18",
+    "react-data-table-component": "^7.6.2",
     "react-dom": "^18",
     "react-table": "^7.8.0",
     "react-toastify": "^11.0.2"
@@ -34,4 +35,3 @@
     "typescript": "^5"
   }
 }
-
