@@ -121,8 +121,8 @@ class SigninAPIView(APIView):
                     }
 
                     result_log = login_activity_collection.insert_one(login_entry)
-
-                    return Response({'message': 'Data matches!', 'user_id': user_id}, status=status.HTTP_200_OK)
+                    log_history_id = str(result_log.inserted_id)
+                    return Response({'message': 'Data matches!', 'user_id': user_id, 'log_history_id': log_history_id}, status=status.HTTP_200_OK)
                 else:
                      return Response({'message': 'Incorrect password!'}, status=status.HTTP_400_BAD_REQUEST)
             else:
@@ -135,6 +135,24 @@ class SigninAPIView(APIView):
 def CsrfAPIView(request):
     return JsonResponse({'csrfToken': get_token(request)})  
 
+class SignoutAPIView(APIView):
+    def post(self, request):
+        try:
+            data = request.data
+            log_history_id = data.get('log_history_id')  
+            if log_history_id:
+                log_history_id = ObjectId(log_history_id)
+                logout_timestamp = datetime.now()
+                login_activity_collection.update_one(
+                    {'_id': log_history_id}, 
+                    {'$set': {'logout_timestamp': logout_timestamp}}
+                )
+                return Response({'message': 'User logged out successfully!'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'No active session found for the user!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
 #ForgetPasswordAPIView method used to send email notification for reset password
 class ForgetPasswordAPIView(APIView):
     

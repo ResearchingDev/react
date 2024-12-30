@@ -80,6 +80,7 @@ const SignIn: React.FC = () => {
               const postData = await postResponse.json();
               if (postResponse.ok) {
                 sessionStorage.setItem('userId', postData.user_id);
+                sessionStorage.setItem('log_history_id', postData.log_history_id);
                 router.push('/profile')
               } else {
                 setMessage(postData.message);
