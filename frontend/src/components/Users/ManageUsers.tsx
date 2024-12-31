@@ -107,23 +107,6 @@ const DataTableComponent: React.FC = () => {
       paginationTotalRows={totalRows}
       onChangePage={handlePageChange}
       onChangeRowsPerPage={handlePerRowsChange}
-      actions={
-        <Link href="/users/add-user"
-            style={{
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              padding: '8px 16px',
-              cursor: 'pointer',
-              marginBottom: '10px',
-              display: 'inline-flex',
-              alignItems: 'center', // Align icon and text
-            }}
-          >
-            <FaPlus style={{ marginRight: '8px' }} />
-            Add New Role
-        </Link>
-      }
     />
     
     <EditModal
