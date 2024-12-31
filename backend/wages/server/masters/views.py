@@ -49,3 +49,23 @@ class RoleAddOrUpdate(APIView):
                 {"error": "Invalid JSON payload"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+class RecordListView(APIView):
+    def get(self, request):
+        # Pagination parameters
+        page = int(request.GET.get("page", 1))
+        rows_per_page = int(request.GET.get("per_page", 10))
+        skip = (page - 1) * rows_per_page
+        # Fetch data with pagination
+        total_records = users_role_collection.count_documents({})
+        records = list(
+            users_role_collection.find({}, {"_id": 0})
+                      .skip(skip)
+                      .limit(rows_per_page)
+        )
+        return Response({
+            "total": total_records,
+            "data": records,
+            "page": page,
+            "per_page": rows_per_page,
+        })

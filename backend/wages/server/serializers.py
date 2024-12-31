@@ -9,8 +9,6 @@ class RoleSerializer(serializers.Serializer):
         "required": "The status is required.",
         "invalid_choice": "Status must be 'active' or 'inactive'."
     })
-
-    # Map `userrole` to `userrole` internally
     def validate(self, data):
-        data['userrole'] = data.pop('userrole')  # Rename userrole to userrole for internal use
+        data['userrole'] = data.pop('userrole')
         return data
