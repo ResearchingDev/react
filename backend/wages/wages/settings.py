@@ -147,3 +147,15 @@ CSRF_COOKIE_SECURE = True  # Set to True if using HTTPS
 CSRF_COOKIE_NAME = "csrftoken"  # Name of the cookie where CSRF token is stored
 CSRF_HEADER_NAME = "X-CSRFToken"  # The header name for CSRF token in requests
 CSRF_USE_SESSIONS = True
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'brightuitesting@gmail.com'
+EMAIL_HOST_PASSWORD = 'Urn7f8F9'  # Use app password if you have 2FA enabled
+DEFAULT_FROM_EMAIL = 'brightuitesting@gmail.com'
+
+DJANGO_PUBLIC_API_BASE_URL= "http://localhost:3000" 
+JWT_SECRET_KEY  = "Wf5qrFtG1XQE4VWipj6FWXT3T2yFNQcGHg5IDhzzQNE"

@@ -1,14 +1,25 @@
 "use client"; 
 import { useState } from "react";
+import axios from 'axios';
 import Link from "next/link";
 import Image from "next/image";
 import ClickOutside from "@/components/ClickOutside";
 import { useRouter } from 'next/navigation'
+const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const DropdownUser = () => {
-   const router = useRouter();
-   const handleLogout = () => {
-     sessionStorage.clear();
-     router.push('/');
+    const router = useRouter();
+    const handleLogout = async () => {
+      const log_history_id = sessionStorage.getItem('log_history_id');
+      console.log(log_history_id)
+      await axios.post( `${apiBaseURL}/api/signout/`, { log_history_id }, {
+        headers: {
+            "Content-Type": "application/json",  // Correct content type
+          }
+        })
+      .then(response => {
+        sessionStorage.clear();
+        router.push('/'); 
+      })
   };
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
