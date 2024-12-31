@@ -1,5 +1,4 @@
 import bcrypt
-import socket
 import jwt
 import secrets
 import requests
@@ -18,14 +17,43 @@ from user_agents import parse
 from django.conf import settings
 from django.core.mail import send_mail
 
+#get_public_ip method used to fetch public ip adress if login as local device
+def get_public_ip():
+    response = requests.get('https://api64.ipify.org?format=json')
+    return response.json()['ip']
+#get_ip method used to fetch ip address details
+def get_ip(request):
+    """ Get client IP address even behind proxy or local development """
+    ip_address = ''
+    
+    if request.META.get('HTTP_X_FORWARDED_FOR'):
+        ip_address = request.META.get('HTTP_X_FORWARDED_FOR').split(',')[0]
+    
+    elif request.META.get('HTTP_CLIENT_IP'):
+        ip_address = request.META.get('HTTP_CLIENT_IP')
+    
+    else:
+        ip_address = request.META.get('REMOTE_ADDR')
 
+    # Handle localhost during development
+    if ip_address == '127.0.0.1' or ip_address == '::1':
+        ip_address = get_public_ip()  # Replace with a real IP (e.g., from external API)
+    
+    return ip_address
 def get_location(ip):
+    """ Fetch location from geoplugin.net using IP """
     try:
-        response = requests.get(f'https://ipinfo.io/{ip}/json')
-        data = response.json()
-        return data  # Returns dict with location info
+        response = requests.get(f"http://www.geoplugin.net/json.gp?ip={ip}")
+        ipdat = response.json()
+
+        if ipdat.get('geoplugin_city') and ipdat.get('geoplugin_region'):
+            location = f"{ipdat['geoplugin_city']}, {ipdat['geoplugin_region']}, {ipdat['geoplugin_countryName']}, {ipdat['geoplugin_countryCode']}"
+        else:
+            location = "Location not found"
+        
+        return location
     except Exception as e:
-        return {'error': str(e)}    
+        return f"Error: {str(e)}"
 #SignupAPIView method used to register user
 class SignupAPIView(APIView):
     # @method_decorator(csrf_protect, name='post')  # Apply CSRF protection
@@ -34,15 +62,14 @@ class SignupAPIView(APIView):
         user_name = request.data.get("user_name")
         email = request.data.get("email")
         password = request.data.get("password")
-        confirm_password = request.data.get("confirm_password")
 
         if first_name and user_name and email and password:
             try:
                 #check username or email exists
                 existing_users = list(users_collection.find({
                     "$or": [
-                        {"user_name": user_name},
-                        {"email": email}
+                        {"vuser_name": user_name},
+                        {"vemail": email}
                     ]
                 }))
                 
@@ -64,14 +91,13 @@ class SignupAPIView(APIView):
 
                     # Create a new user dictionary to store in MongoDB
                     user_data = {
-                        "first_name": first_name,
-                        "user_name": user_name,
-                        "email": email,
-                        "password": hashed_password.decode('utf-8'),
-                        "plain_password": confirm_password,  # Store the hashed password as a string
-                        'role_id':1,
-                        'status':'Active',
-                        "created_at": datetime.utcnow(),  # Add current timestamp
+                        'irole_id':1,
+                        "vfirst_name": first_name,
+                        "vuser_name": user_name,
+                        "vpassword": hashed_password.decode('utf-8'),
+                        "vemail": email,
+                        'estatus':'Active',
+                        "dcreated_at": datetime.utcnow(),  # Add current timestamp
                     }
                     # Insert the user data into the MongoDB collection
                     result = users_collection.insert_one(user_data)
@@ -97,16 +123,16 @@ class SigninAPIView(APIView):
                 return Response({'message': 'Email and password are required!'}, status=status.HTTP_400_BAD_REQUEST)
             user_data = users_collection.find_one({
                 '$or': [
-                    {'email': email},  # Match by email
-                    {'user_name': email}  # Match by username
+                    {'vemail': email},  # Match by email
+                    {'vuser_name': email}  # Match by username
                 ]
             })
             if user_data:
-                if bcrypt.checkpw(password.encode('utf-8'), user_data['password'].encode('utf-8')):
+                if bcrypt.checkpw(password.encode('utf-8'), user_data['vpassword'].encode('utf-8')):
                     user_id = str(user_data['_id'])
                     login_timestamp = datetime.now()
                     login_device = request.headers.get('User-Agent', 'Unknown device')
-                    ip_address = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
+                    ip_address = get_ip(request)
                     location = get_location(ip_address) #socket.gethostbyaddr(ip_address)[0]
                     ua = parse(login_device)
                     browser_details = {
@@ -119,13 +145,13 @@ class SigninAPIView(APIView):
                     browser_details = browser_details
                     
                     login_entry = {
-                    'user_id': user_id,
-                    'login_date': login_timestamp,
-                    'login_device': login_device,
-                    'ip_address' : ip_address,
-                    'login_location' : location,
-                    'browser_details' : browser_details,
-                    'logout_date' : '',
+                    'iuser_id': user_id,
+                    'dlogin_date': login_timestamp,
+                    'dlogout_date' : '',
+                    'vlogin_device': login_device,
+                    'vip_address' : ip_address,
+                    'vlogin_location' : location,
+                    'vbrowser_details' : browser_details,
                     }
 
                     result_log = login_activity_collection.insert_one(login_entry)
@@ -153,7 +179,7 @@ class SignoutAPIView(APIView):
                 logout_timestamp = datetime.now()
                 login_activity_collection.update_one(
                     {'_id': log_history_id}, 
-                    {'$set': {'logout_date': logout_timestamp}}
+                    {'$set': {'dlogout_date': logout_timestamp}}
                 )
                 return Response({'message': 'User logged out successfully!'}, status=status.HTTP_200_OK)
             else:
@@ -170,7 +196,7 @@ class ForgetPasswordAPIView(APIView):
         if email:
             try:
                 # Find users by email
-                existing_users = users_collection.find_one({"email": email})
+                existing_users = users_collection.find_one({"vemail": email})
                 # If no users are found, that means email is not already registered
                 if not existing_users:  # Email doesn't exist
                     return Response({"error": "Invalid email address"},status=status.HTTP_400_BAD_REQUEST)
@@ -183,7 +209,7 @@ class ForgetPasswordAPIView(APIView):
                     user_id = str(existing_users['_id'])
                     # Generate JWT token with user info
                     payload = {
-                        "user_id": user_id,
+                        "iuser_id": user_id,
                         "exp": datetime.utcnow() + timedelta(hours=token_expiration_hr)
                     }
                     token = jwt.encode(payload, settings.JWT_SECRET_KEY , algorithm='HS256')
@@ -192,13 +218,13 @@ class ForgetPasswordAPIView(APIView):
                     reset_link = f"{settings.DJANGO_PUBLIC_API_BASE_URL}/auth/reset/{token}"
                     
                     # Send the email
-                    send_mail(
-                        'Password Reset Request',
-                        f'Click the link to reset your password: {reset_link}',
-                        settings.DEFAULT_FROM_EMAIL,
-                        [email],
-                        fail_silently=False,
-                    )
+                    # send_mail(
+                    #     'Password Reset Request',
+                    #     f'Click the link to reset your password: {reset_link}',
+                    #     settings.DEFAULT_FROM_EMAIL,
+                    #     [email],
+                    #     fail_silently=False,
+                    # )
                     return Response({"message": "Password reset email sent successfully!","token":token}, status=status.HTTP_200_OK)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -214,7 +240,7 @@ class ResetPasswordAPIView(APIView):
         try:
             # Decode the JWT token to extract user information
             decoded_token = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=['HS256'])
-            user_id = decoded_token['user_id']
+            user_id = decoded_token['iuser_id']
             
             # Find the user in MongoDB
             user = users_collection.find_one({"_id": ObjectId(user_id)})
@@ -228,9 +254,8 @@ class ResetPasswordAPIView(APIView):
                     {"_id": ObjectId(user_id)},
                     {
                         "$set": {
-                            "password": hashed_password.decode('utf-8'),  # Store hashed password as a string
-                            "plain_password": new_password,  # Store plain password (NOT recommended for production)
-                            "updated_at": datetime.utcnow(),  # Add current timestamp
+                            "vpassword": hashed_password.decode('utf-8'),  # Store hashed password as a string
+                            "dupdated_at": datetime.utcnow(),  # Add current timestamp
                         }
                     }
                 )

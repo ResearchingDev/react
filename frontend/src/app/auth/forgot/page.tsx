@@ -80,7 +80,7 @@ const Forgot: React.FC = () => {
             setFormData({email: ''});
             // Redirect to another page after successful sign-in
             setTimeout(() => {
-              router.push(`/auth/confirm/`);
+              router.push(`/auth/reset/${response.data.token}`);
             }, 2000); // Delay the redirection to show the success message for 2 seconds
         })
         .catch(err => {
