@@ -2,6 +2,7 @@ import bcrypt
 import socket
 import jwt
 import secrets
+import requests
 from bson import ObjectId
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -17,7 +18,14 @@ from user_agents import parse
 from django.conf import settings
 from django.core.mail import send_mail
 
-    
+
+def get_location(ip):
+    try:
+        response = requests.get(f'https://ipinfo.io/{ip}/json')
+        data = response.json()
+        return data  # Returns dict with location info
+    except Exception as e:
+        return {'error': str(e)}    
 #SignupAPIView method used to register user
 class SignupAPIView(APIView):
     # @method_decorator(csrf_protect, name='post')  # Apply CSRF protection
@@ -60,7 +68,7 @@ class SignupAPIView(APIView):
                         "user_name": user_name,
                         "email": email,
                         "password": hashed_password.decode('utf-8'),
-                        "confirm_password": confirm_password,  # Store the hashed password as a string
+                        "plain_password": confirm_password,  # Store the hashed password as a string
                         'role_id':1,
                         'status':'Active',
                         "created_at": datetime.utcnow(),  # Add current timestamp
@@ -99,7 +107,7 @@ class SigninAPIView(APIView):
                     login_timestamp = datetime.now()
                     login_device = request.headers.get('User-Agent', 'Unknown device')
                     ip_address = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
-                    location = socket.gethostbyaddr(ip_address)[0]
+                    location = get_location(ip_address) #socket.gethostbyaddr(ip_address)[0]
                     ua = parse(login_device)
                     browser_details = {
                         'browser': ua.browser.family,
@@ -112,12 +120,12 @@ class SigninAPIView(APIView):
                     
                     login_entry = {
                     'user_id': user_id,
-                    'login_timestamp': login_timestamp,
+                    'login_date': login_timestamp,
                     'login_device': login_device,
                     'ip_address' : ip_address,
-                    'device_location' : location,
+                    'login_location' : location,
                     'browser_details' : browser_details,
-                    'logout_timestamp' : '',
+                    'logout_date' : '',
                     }
 
                     result_log = login_activity_collection.insert_one(login_entry)
@@ -145,7 +153,7 @@ class SignoutAPIView(APIView):
                 logout_timestamp = datetime.now()
                 login_activity_collection.update_one(
                     {'_id': log_history_id}, 
-                    {'$set': {'logout_timestamp': logout_timestamp}}
+                    {'$set': {'logout_date': logout_timestamp}}
                 )
                 return Response({'message': 'User logged out successfully!'}, status=status.HTTP_200_OK)
             else:
@@ -184,13 +192,13 @@ class ForgetPasswordAPIView(APIView):
                     reset_link = f"{settings.DJANGO_PUBLIC_API_BASE_URL}/auth/reset/{token}"
                     
                     # Send the email
-                    # send_mail(
-                    #     'Password Reset Request',
-                    #     f'Click the link to reset your password: {reset_link}',
-                    #     settings.DEFAULT_FROM_EMAIL,
-                    #     [email],
-                    #     fail_silently=False,
-                    # )
+                    send_mail(
+                        'Password Reset Request',
+                        f'Click the link to reset your password: {reset_link}',
+                        settings.DEFAULT_FROM_EMAIL,
+                        [email],
+                        fail_silently=False,
+                    )
                     return Response({"message": "Password reset email sent successfully!","token":token}, status=status.HTTP_200_OK)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -221,7 +229,7 @@ class ResetPasswordAPIView(APIView):
                     {
                         "$set": {
                             "password": hashed_password.decode('utf-8'),  # Store hashed password as a string
-                            "confirm_password": new_password,  # Store plain password (NOT recommended for production)
+                            "plain_password": new_password,  # Store plain password (NOT recommended for production)
                             "updated_at": datetime.utcnow(),  # Add current timestamp
                         }
                     }

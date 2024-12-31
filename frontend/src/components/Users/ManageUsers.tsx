@@ -48,7 +48,7 @@ const DataTableComponent: React.FC = () => {
   const columns = [
     {
       name: 'User Role',
-      selector: (row: any) => row.userrole,
+      selector: (row: any) => row.role_name,
       sortable: true,
     },
     {
