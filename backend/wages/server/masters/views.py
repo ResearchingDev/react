@@ -16,13 +16,16 @@ class RoleAddOrUpdate(APIView):
                 status_input = serializer.validated_data['status']
                 
                 # Check if the role already exists
-                existing_role = users_role_collection.find_one({"userrole": userrole})
+                existing_role = users_role_collection.find_one({"role_name": userrole})
 
                 if existing_role:
                     # If the role exists, update it
                     updated_role = users_role_collection.update_one(
-                        {"userrole": userrole},
-                        {"$set": {"status": status_input}}
+                        {"role_name": userrole},
+                        {"$set": 
+                            {"status": status_input},
+                            "updated_at": datetime.utcnow(),  # Add current timestamp
+                        }
                     )
                     if updated_role.modified_count > 0:
                         return Response({"message": "Role updated successfully"})
@@ -31,8 +34,9 @@ class RoleAddOrUpdate(APIView):
                 else:
                     # If the role does not exist, create a new one
                     new_role = {
-                        "userrole": userrole,
-                        "status": status_input
+                        "role_name": userrole,
+                        "status": status_input,
+                        "created_at": datetime.utcnow(),  # Add current timestamp
                     }
                     result = users_role_collection.insert_one(new_role)
                     return Response(
