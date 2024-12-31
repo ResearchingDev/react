@@ -8,7 +8,7 @@ const Breadcrumb = ({ pageName }: BreadcrumbProps) => {
       <h2 className="text-title-md2 font-semibold text-black dark:text-white">
         {pageName}
         <Link
-          href="#"
+          href="/users/add-user/"
           className="add-btn inline-flex rounded-md bg-primary text-white hover:bg-opacity-90">
           Add
         </Link>
