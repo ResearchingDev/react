@@ -1,9 +1,9 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import DataTableComponent from "@/components/Users/ManageUsers";
+import DataTableComponent from "@/components/UserRoles/ManageUserRoles";
 export const metadata: Metadata = {
-  title: "BuiAdmin - Manage Users",
+  title: "BuiAdmin - Manage User Roles",
   description:
     "This is Next.js Tables page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
 };

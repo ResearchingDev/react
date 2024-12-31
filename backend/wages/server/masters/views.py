@@ -12,7 +12,7 @@ class RoleAddOrUpdate(APIView):
         try:
             serializer = RoleSerializer(data=request.data)
             if serializer.is_valid():
-                userrole = serializer.validated_data['userrole']
+                userrole = serializer.validated_data['userRole']
                 status_input = serializer.validated_data['status']
                 
                 # Check if the role already exists

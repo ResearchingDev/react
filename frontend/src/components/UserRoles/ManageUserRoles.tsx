@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { FaEdit, FaTrashAlt, FaPlus } from 'react-icons/fa'; // For icons
 import EditModal from './EditModal';
-
+import Link from "next/link";
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const DataTableComponent: React.FC = () => {
   const [data, setData] = useState<any[]>([]); // Adjust `any[]` to your data structure type if known
@@ -16,6 +16,7 @@ const DataTableComponent: React.FC = () => {
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAction, setIsisAction] = useState<string>('Add User');
   const fetchData = async (page: number, perPage: number) => {
     setLoading(true);
     try {
@@ -88,12 +89,19 @@ const DataTableComponent: React.FC = () => {
   ];
 
   const handleEdit = (row: any) => {
+    console.log(row)
     setSelectedItem(row);
     setIsModalOpen(true);
+    setIsisAction('Edit User');
   };
   
   const handleDelete = (row: any) => {
     console.log('Delete clicked for:', row);
+  };
+  const handleAdd = (row: any) => {
+    setSelectedItem(row);
+    setIsModalOpen(true);
+    setIsisAction('Add User');
   };
   return (
     <div>
@@ -107,6 +115,15 @@ const DataTableComponent: React.FC = () => {
       paginationTotalRows={totalRows}
       onChangePage={handlePageChange}
       onChangeRowsPerPage={handlePerRowsChange}
+      actions={
+        <button
+            className="add-btn inline-flex rounded-md bg-primary text-white hover:bg-opacity-90"
+            onClick={() => handleAdd(data)}
+            >
+            <FaPlus className="mr-2" />
+            Add New Role
+        </button>
+      }
     />
     
     <EditModal
@@ -114,6 +131,10 @@ const DataTableComponent: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
         itemDetails={selectedItem}
         data-row ={setSelectedItem}
+        IsisAction ={isAction}
+        fetchData={fetchData} 
+        page={page} 
+        perPage={perPage}
         onSave={handleDelete}
       />
       </div>
