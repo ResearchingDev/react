@@ -1,5 +1,4 @@
 'use client'; // This enables client-side interactivity
-
 import React, { useState, useEffect, useRef   } from "react";
 import Label from '@/components/Forms/LabelField';
 import InputField from '@/components/Forms/InputField';
@@ -45,7 +44,7 @@ const SignUp: React.FC = () => {
         isFetched.current = true; // Mark as fetched to avoid refetching
       } catch (error) {
         console.error('Failed to fetch CSRF token:', error);
-        setError('Failed to fetch CSRF token');
+        // setError('Failed to fetch CSRF token');
       }
     };
 
@@ -63,13 +62,13 @@ const SignUp: React.FC = () => {
     const newErrors = { first_name: '', user_name: '', email: '', password: '', confirm_password: '' };
     // Validate First Name
     if (!formData.first_name.trim()) {
-      newErrors.first_name = 'First name is required';
+      newErrors.first_name = 'This field is required';
       isValid = false;
     }
 
     // Validate User Name
     if (!formData.user_name.trim()) {
-      newErrors.user_name = 'User name is required';
+      newErrors.user_name = 'This field is required';
       isValid = false;
     } else if (formData.user_name.length < 5) {
       newErrors.user_name = 'User name must be at least 5 characters';
@@ -79,7 +78,7 @@ const SignUp: React.FC = () => {
     // Validate Email
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'This field is required';
       isValid = false;
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
@@ -88,7 +87,7 @@ const SignUp: React.FC = () => {
 
     // Validate Password
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'This field is required';
       isValid = false;
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
@@ -97,7 +96,7 @@ const SignUp: React.FC = () => {
 
     // Validate Confirm Password
     if (formData.password !== formData.confirm_password) {
-      newErrors.confirm_password = 'Passwords do not match';
+      newErrors.confirm_password = 'Password and Confirm Password do not match.';
       isValid = false;
     }
 

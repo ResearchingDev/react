@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from server.auth.views import SignupAPIView, SigninAPIView, CsrfAPIView, ForgetPasswordAPIView, ResetPasswordAPIView, SignoutAPIView
 from server.masters.views import RoleAddOrUpdate, RecordListView
+from server.users.views import UserAPIView,UserListView,UserDeleteView
 from server.views import home  # Import the new view
 urlpatterns = [
     path('', home, name='home'),  # Add root URL pattern
@@ -30,6 +31,8 @@ urlpatterns = [
     path('api/manageuserrole/', RoleAddOrUpdate.as_view(), name='manageuserrole'), # Manage User Roles API
     path('api/records/', RecordListView.as_view(), name='record-list'),
     path('api/signout/', SignoutAPIView.as_view(), name='signout'), # Signout API
-    
+    path('api/add-user/', UserAPIView.as_view(), name='add_user'), # Add User API
+    path('api/user-list/', UserListView.as_view(), name='user_list'),# List User API
+    path('api/delete-user/<str:user_id>/', UserDeleteView.as_view(), name='delete_user'),# Delete User API
 ]
 
