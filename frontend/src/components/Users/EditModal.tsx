@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 
   interface EditModalProps {
-    isOpen: boolean; // For the modal's open state
-    onClose: () => void; // Callback function to close the modal
-    itemDetails: { userRole: string; status: string } | null; // Details of the selected user or null
-    onSave: (updatedItem: { userRole: string; status: string }) => void; // Callback function to save changes
+    isOpen: boolean;
+    IsisAction: string;
+    onClose: () => void;
+    itemDetails: { userRole: string; status: string } | null;
+    onSave: (updatedItem: { userRole: string; status: string }) => void;
+    fetchData: (page: number, perPage: number) => Promise<void>;
+    page: number;
+    perPage: number;
   }
-  const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemDetails, onSave }) => {
+  const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, IsisAction, itemDetails, onSave, fetchData, page, perPage  }) => {
   const [formData, setFormData] = useState({
     userRole: '',
     status: '',
@@ -51,16 +55,16 @@ import Modal from 'react-modal';
           backgroundColor: 'rgba(0, 0, 0, 0.75)',
         },
       }}>
-      <h2 className="mb-9 text-2xl font-bold text-black text-center dark:text-white sm:text-title-xl2">Edit User</h2>
+      <h2 className="mb-9 text-2xl font-bold text-black text-center dark:text-white sm:text-title-xl2">{IsisAction}</h2>
       <form>
         <div>
-          <label className="mb-3 block text-sm font-medium text-black dark:text-white">User Role:</label>
+          <label className="mb-3 block text-sm font-medium text-black dark:text-white">User:</label>
           <input
             type="text"
             name="userRole"
             value={formData.userRole}
             onChange={handleChange}
-            placeholder="Enter user role"
+            placeholder="Enter user"
             className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
           />
         </div>

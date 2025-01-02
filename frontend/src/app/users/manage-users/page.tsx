@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const TablesPage = () => {
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="User Role" />
+      <Breadcrumb pageName="Users" />
       <div className="flex flex-col gap-10">
         <DataTableComponent />
       </div>

@@ -16,6 +16,7 @@ const DataTableComponent: React.FC = () => {
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAction, setIsisAction] = useState<string>('Add User');
   const fetchData = async (page: number, perPage: number) => {
     setLoading(true);
     try {
@@ -47,7 +48,7 @@ const DataTableComponent: React.FC = () => {
 
   const columns = [
     {
-      name: 'User Role',
+      name: 'User',
       selector: (row: any) => row.vrole_name,
       sortable: true,
     },
@@ -90,15 +91,21 @@ const DataTableComponent: React.FC = () => {
   const handleEdit = (row: any) => {
     setSelectedItem(row);
     setIsModalOpen(true);
+    setIsisAction('Edit User');
   };
   
   const handleDelete = (row: any) => {
     console.log('Delete clicked for:', row);
   };
+  const handleAdd = (row: any) => {
+    setSelectedItem(row);
+    setIsModalOpen(true);
+    setIsisAction('Add User');
+  };
   return (
     <div>
     <DataTable
-      title="User Role Lists"
+      title="Users List"
       columns={columns}
       data={data}
       progressPending={loading}
@@ -107,14 +114,26 @@ const DataTableComponent: React.FC = () => {
       paginationTotalRows={totalRows}
       onChangePage={handlePageChange}
       onChangeRowsPerPage={handlePerRowsChange}
+      actions={
+              <button
+                  className="add-btn inline-flex rounded-md bg-primary text-white hover:bg-opacity-90"
+                  onClick={() => handleAdd(data)}
+                  >
+                  <FaPlus className="mr-2" />
+                  Add User
+              </button>
+      }
     />
     
     <EditModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         itemDetails={selectedItem}
-        data-row ={setSelectedItem}
+        IsisAction ={isAction}
         onSave={handleDelete}
+        fetchData={fetchData} 
+        page={page} 
+        perPage={perPage}
       />
       </div>
   );
