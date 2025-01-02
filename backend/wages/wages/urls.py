@@ -17,8 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from server.auth.views import SignupAPIView, SigninAPIView, CsrfAPIView, ForgetPasswordAPIView, ResetPasswordAPIView, SignoutAPIView
-from server.masters.views import RoleAddOrUpdate, RecordListView
 from server.users.views import UserAPIView,UserListView,UserDeleteView
+from server.masters.views import RoleAddOrUpdate, RecordListView, ProfileList, ProfileAddOrUpdate
 from server.views import home  # Import the new view
 urlpatterns = [
     path('', home, name='home'),  # Add root URL pattern
@@ -34,5 +34,8 @@ urlpatterns = [
     path('api/add-user/', UserAPIView.as_view(), name='add_user'), # Add User API
     path('api/user-list/', UserListView.as_view(), name='user_list'),# List User API
     path('api/delete-user/<str:user_id>/', UserDeleteView.as_view(), name='delete_user'),# Delete User API
+    path('api/profile/', ProfileList.as_view(), name='profile-list'),
+    path('api/updateprofile/', ProfileAddOrUpdate.as_view(), name='updateprofile'), # Manage User Roles API
+    
 ]
 

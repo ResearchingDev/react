@@ -3,8 +3,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime  # Import datetime for timestamps
 from server.db import users_role_collection # Import Mongo wa_users collection
+from server.db import users_collection # Import Mongo wa_users collection
 from django.views.decorators.csrf import csrf_exempt
 from ..serializers import RoleSerializer  # Import the serializer
+from bson import ObjectId
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.files.storage import default_storage
+from django.conf import settings
+import random
+import string
 import json
 
 class RoleAddOrUpdate(APIView):
@@ -73,3 +80,83 @@ class RecordListView(APIView):
             "page": page,
             "per_page": rows_per_page,
         })
+    
+class ProfileList(APIView):
+    def get(self, request):
+        try:
+            # Assuming the username is stored in the session
+            Id = request.GET.get('id')
+            if not Id:
+                return Response({'error': 'User not logged in'}, status=401)
+            object_id = ObjectId(Id)
+            # Find the user profile from MongoDB
+            user_profile = users_collection.find_one({'_id': object_id})
+            
+            if not user_profile:
+                return Response({'error': 'User profile not found'}, status=404)
+
+            # Prepare the response data
+            response_data = {
+                'vfirst_name': user_profile['vfirst_name'],
+                'vuser_name': user_profile.get('vuser_name'),
+                'vemail': user_profile.get('vemail'),
+                'vphone_number': user_profile.get('vphone_number'),
+                'profile_picture': user_profile.get('profile_picture')
+            }
+
+            return Response(response_data)
+
+        except Exception as e:
+            return Response({'error': f'Error fetching profile: {str(e)}'}, status=500)
+    
+
+class ProfileAddOrUpdate(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, *args, **kwargs):
+        user_id = request.data.get('id')  # The MongoDB Object ID
+        username = request.data.get('username')
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        phone_number = request.data.get('phone_number')
+        file = request.data.get('file')
+
+        if not user_id:
+            return Response({'error': 'ID is required'}, status=400)
+
+        # Validate ObjectId
+        try:
+            object_id = ObjectId(user_id)
+        except Exception as e:
+            return Response({'error': 'Invalid ID format'}, status=400)
+
+        # Prepare update data
+        update_data = {}
+        if username:
+            update_data['vuser_name'] = username
+        if email:
+            update_data['vemail'] = email
+        if first_name:
+            update_data['vfirst_name'] = first_name
+        if phone_number:
+            update_data['vphone_number'] = phone_number
+
+        # If a new file is uploaded, save and update the path
+        if file:
+            original_file_name = file.name
+            extension = original_file_name.split('.')[-1]
+            new_file_name = f"{generate_random_filename()}_{original_file_name.split('.')[0]}.{extension}"
+            file_path = default_storage.save(f'uploads/{new_file_name}', file)
+            file_url = f'{settings.MEDIA_URL}{file_path}'
+            update_data['profile_picture'] = file_url
+
+        # Update in MongoDB
+        result = users_collection.update_one({'_id': object_id}, {'$set': update_data})
+
+        if result.matched_count == 0:
+            return Response({'error': 'User not found'}, status=404)
+
+        return Response({'message': 'User updated successfully'}, status=200)
+
+def generate_random_filename(length=8):
+    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
