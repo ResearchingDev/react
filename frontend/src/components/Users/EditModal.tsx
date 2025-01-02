@@ -28,8 +28,7 @@ const EditModal: React.FC<EditModalProps> = ({
     user_name: "",
     email: "",
     password: "",
-    profile_image: "",
-    user_role: "1",
+    user_role: "",
     status: "",
   });
   const [errors, setErrors] = useState({
@@ -42,6 +41,8 @@ const EditModal: React.FC<EditModalProps> = ({
     user_role: "",
     status: "",
     });
+  const [profile_image, setFile] = useState<File | null>(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -56,8 +57,7 @@ const EditModal: React.FC<EditModalProps> = ({
           user_name: itemDetails.vuser_name || '',
           email: itemDetails.vemail || '',
           password: '', // Assuming password is available
-          profile_image: itemDetails.vprofile_image || '',
-          user_role: '1',  // Set a default user_role if necessary
+          user_role: '',  // Set a default user_role if necessary
           status: itemDetails.estatus || 'inactive',
         });
       }
@@ -100,10 +100,6 @@ const EditModal: React.FC<EditModalProps> = ({
       newErrors.password = 'Password must be at least 6 characters';
       isValid = false;
     }
-    if (!formData.profile_image.trim()) {
-      newErrors.profile_image = 'This field is required';
-      isValid = false;
-    }
     if (!formData.user_role.trim()) {
       newErrors.user_role = 'This field is required';
       isValid = false;
@@ -115,13 +111,33 @@ const EditModal: React.FC<EditModalProps> = ({
     setErrors(newErrors);
     return isValid;
   };
+   //File Onchange action
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = e.target.files ? e.target.files[0] : null;
+      if (selectedFile) {
+        setFile(selectedFile);
+        const fileUrl = URL.createObjectURL(selectedFile);
+        setThumbnailUrl(fileUrl);
+      }
+    };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
+      const formDataToSubmit = new FormData();
+      formDataToSubmit.append('first_name', formData.first_name);
+      formDataToSubmit.append('last_name', formData.last_name);
+      formDataToSubmit.append('user_name', formData.user_name);
+      formDataToSubmit.append('email', formData.email);
+      formDataToSubmit.append('password', formData.password);
+      formDataToSubmit.append('user_role', formData.user_role);
+      formDataToSubmit.append('status', formData.status);
+      if (profile_image) {
+          formDataToSubmit.append('profile_image', profile_image); // Append the profile image
+      }
       try {
-        await axios.post( `${apiBaseURL}/api/add-user/`, formData, {
+        await axios.post( `${apiBaseURL}/api/add-user/`, formDataToSubmit, {
           headers: {
-              "Content-Type": "application/json",  // Correct content type
+              "Content-Type": "multipart/form-data",  // Correct content type
           }
       })
       .then(response => {
@@ -132,7 +148,6 @@ const EditModal: React.FC<EditModalProps> = ({
             user_name: "",
             email: "",
             password: "",
-            profile_image: "",
             user_role: "",
             status: "",
           });
@@ -256,12 +271,10 @@ const EditModal: React.FC<EditModalProps> = ({
               profile Image
             </label>
             <input
-              type="file"
-              name="profile_image"
-              value={formData.profile_image} // Placeholder for `password`
-              onChange={handleChange}
-              className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-            />
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
             {errors.profile_image && <p style={{ color: 'red' }}>{errors.profile_image}</p>}
           </div>
           {/* User Role */}
@@ -275,6 +288,8 @@ const EditModal: React.FC<EditModalProps> = ({
               onChange={handleChange}
               className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
             >
+              <option value="">select</option>
+              <option value="1">Admin</option>
             </select>
             {errors.user_role && <p style={{ color: 'red' }}>{errors.user_role}</p>}
           </div>

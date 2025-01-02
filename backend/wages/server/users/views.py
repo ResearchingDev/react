@@ -6,10 +6,14 @@ from rest_framework import status
 from datetime import datetime  # Import datetime for timestamps
 from server.db import users_collection # Import Mongo wa_users collection
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
-import os
+from django.core.files.storage import default_storage
+import random
+import string
+import json
+from rest_framework.parsers import MultiPartParser, FormParser
 #UserAPIView method used to create user
 class UserAPIView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
     # @method_decorator(csrf_protect, name='post')  # Apply CSRF protection
     def post(self, request, *args, **kwargs):
         first_name = request.data.get("first_name")
@@ -43,6 +47,14 @@ class UserAPIView(APIView):
                     # Hash the password before saving
                 else:
                  hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+                   # If a new file is uploaded, save and update the path
+                if profile_image:
+                    original_file_name = profile_image.name
+                    extension = original_file_name.split('.')[-1]
+                    new_file_name = f"{generate_random_filename()}_{original_file_name.split('.')[0]}.{extension}"
+                    file_path = default_storage.save(f'uploads/{new_file_name}', profile_image)
+                    file_url = f'{settings.MEDIA_URL}{file_path}'
+                    profile_picture = file_url
                 # Create a new user dictionary to store in MongoDB
                 user_data = {
                     "irole_id":user_role,
@@ -51,7 +63,7 @@ class UserAPIView(APIView):
                     "vuser_name": user_name,
                     "vpassword": hashed_password.decode('utf-8'),
                     "vemail": email,
-                    "vprofile_image": None,
+                    "vprofile_image": profile_picture,
                     "estatus":user_status,
                     "tdeleted_status": 0,
                     "dcreated_at": datetime.utcnow(),  # Add current timestamp
@@ -64,7 +76,7 @@ class UserAPIView(APIView):
                     "vuser_name": user_name,
                     "vpassword": hashed_password.decode('utf-8'),
                     "vemail": email,
-                    "vprofile_image": None,
+                    "vprofile_image": profile_picture,
                     "estatus":user_status,
                     "tdeleted_status": 0,
                     "dcreated_at": None,  # Add current timestamp
@@ -94,6 +106,9 @@ class UserAPIView(APIView):
         
         return Response({"error": "Invalid data!"}, status=status.HTTP_400_BAD_REQUEST)
     
+def generate_random_filename(length=8):
+    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))   
+ 
 class UserListView(APIView):
     def get(self, request):
         try:
