@@ -55,9 +55,9 @@ import Modal from 'react-modal';
           backgroundColor: 'rgba(0, 0, 0, 0.75)',
         },
       }}>
-      <h2 className="mb-9 text-2xl font-bold text-black text-center dark:text-white sm:text-title-xl2">{IsisAction}</h2>
+      <h3 className="mb-4 text-2xl font-bold text-black text-center dark:text-white sm:text-title-xl2">{IsisAction}</h3>
       <form>
-        <div>
+        <div className='mb-4'>
           <label className="mb-3 block text-sm font-medium text-black dark:text-white">User:</label>
           <input
             type="text"

@@ -88,62 +88,6 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
       }
     };
     //Custom form error styles
-    const styles = {
-      container: {
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          backgroundColor: '#f0f0f0',
-      },
-      heading: {
-          fontWeight: 'bold',
-          fontSize: '25px',
-          color: "green",
-          textAlign: "center",
-      },
-      subHeading: {
-          fontWeight: 'bold',
-          fontSize: '25px',
-          textAlign: "center",
-    
-      },
-      form: {
-          backgroundColor: '#fff',
-          padding: '20px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-          width: '100%',
-          maxWidth: '400px',
-          margin: '0 auto',
-      },
-      input: {
-          width: '100%',
-          padding: '12px',
-          marginBottom: '12px',
-          border: '1px solid #ccc',
-          borderRadius: '10px',
-          fontSize: '16px',
-          transition: 'border-color 0.2s ease',
-      },
-      button: {
-          backgroundColor: 'green',
-          color: '#fff',
-          fontWeight: 'bold',
-          fontSize: '16px',
-          padding: '12px',
-          border: 'none',
-          borderRadius: '10px',
-          cursor: 'pointer',
-          width: '40%',
-          transition: 'opacity 0.2s ease',
-      },
-      error: {
-          color: 'red',
-          fontSize: '14px',
-          marginBottom: '6px',
-      },
-    };
 
   // Load item details into the form when modal opens
   useEffect(() => {
@@ -174,10 +118,10 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
           backgroundColor: 'rgba(0, 0, 0, 0.75)',
         },
       }}>
-      <h2 className="mb-9 text-2xl font-bold text-black text-center dark:text-white sm:text-title-xl2">{IsisAction}</h2>
-      <form onSubmit={handleSubmit}>
+      <div className="modal-title">{IsisAction}</div>
+      <form onSubmit={handleSubmit} className='grid gap-y-6'>
         <div>
-          <label className="mb-3 block text-sm font-medium text-black dark:text-white">User Role:</label>
+          <label className="mb-3 block text-black dark:text-white">User Role:</label>
           <input
                 type="text"
                 name="userRole"
@@ -189,12 +133,12 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
             {errors.userRole && <p style={styles.error}>{errors.userRole}</p>}
         </div>
         <div>
-          <label className="mb-3 block text-sm font-medium text-black dark:text-white">Status:</label>
+          <label className="mb-3 block text-black dark:text-white">Status:</label>
           <select
                 value={status}
                 name="status"
                 onChange={handleChange} // Use handleChange here
-                className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent px-12 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input`}
+                className={`relative z-20 w-full rounded border border-stroke bg-transparent px-5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input`}
                 >
                 <option value="" disabled>
                     Select Status
@@ -205,10 +149,10 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
             {errors.status && <p style={styles.error}>{errors.status}</p>}
         </div>
         <div>
-          <button  type="submit" className="mt-3 mr-3 inline-flex items-center justify-center float-right rounded-md bg-primary px-10 py-4 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
+          <button  type="submit" className="float-right rounded-md bg-primary py-3 text-white hover:bg-opacity-90 xl:px-6">
             Save
           </button>
-          <button className="mt-3 mr-3 inline-flex items-center justify-center float-right rounded-md bg-danger px-10 py-4 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10" type="button" onClick={onClose}>
+          <button className="mr-3 float-right rounded-md bg-danger py-3 text-white hover:bg-opacity-90 xl:px-6" type="button" onClick={onClose}>
             Cancel
           </button>
         </div>
