@@ -9,13 +9,13 @@ const Profile = () => {
   const id = sessionStorage.getItem('userId');
   useEffect(() => {
      if (!id) {
-       sessionStorage.clear();
-       router.push('/');
+      //  sessionStorage.clear();
+      //  router.push('/');
      } 
    }, []);
-  if (!id) {
-    return null; 
-  }
+  // if (!id) {
+  //   return null; 
+  // }
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-242.5">
