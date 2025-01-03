@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { FaEdit, FaTrashAlt, FaPlus } from 'react-icons/fa'; // For icons
 import EditModal from './EditModal';
 import Link from "next/link";
+import { deleteItem } from '../../api/user';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const DataTableComponent: React.FC = () => {
   const [data, setData] = useState<any[]>([]); // Adjust `any[]` to your data structure type if known
@@ -95,8 +96,9 @@ const DataTableComponent: React.FC = () => {
     setIsisAction('Edit User');
   };
   
-  const handleDelete = (row: any) => {
-    console.log('Delete clicked for:', row);
+  const handleDelete = async (row: any) => {
+    await deleteItem(row._id);
+    fetchData(page, perPage);
   };
   const handleAdd = (row: any) => {
     setSelectedItem(row);

@@ -14,3 +14,12 @@ export const fetchUserProfile = async () => {
     throw error;
   }
 };
+
+export const deleteItem = async (itemId) => {
+  try {
+    const response = await axios.delete(`${apiBaseURL}/api/delete-item/${itemId}/`);
+    console.log(response.data.message); // Handle success
+  } catch (error) {
+    console.error(error.response?.data?.error || "An error occurred");
+  }
+};

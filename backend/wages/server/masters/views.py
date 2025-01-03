@@ -160,3 +160,12 @@ class ProfileAddOrUpdate(APIView):
 
 def generate_random_filename(length=8):
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
+
+class DeleteItemView(APIView):
+    def delete(self, request, item_id):
+        object_id = ObjectId(item_id)
+        result = users_role_collection.delete_one({"_id": object_id})
+        if result.deleted_count == 1:
+            return Response({"message": "Role deleted successfully."}, status=200)
+        else:
+            return Response({"error": "Role not found."}, status=404)

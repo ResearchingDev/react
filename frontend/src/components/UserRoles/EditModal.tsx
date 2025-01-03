@@ -134,7 +134,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                 placeholder="Enter User Role"
                 className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                 value={userRole}
-                onChange={handleChange} // Use handleChange here
+                onChange={(e) => setUserRole(e.target.value)} // Use handleChange here
             />
             {errors.userRole && <p style={styles.error}>{errors.userRole}</p>}
         </div>
@@ -143,7 +143,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
           <select
                 value={status}
                 name="status"
-                onChange={handleChange} // Use handleChange here
+                onChange={(e) => setStatus(e.target.value)} // Use handleChange here
                 className={`relative z-20 w-full rounded border border-stroke bg-transparent px-5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input`}
                 >
                 <option value="" disabled>
