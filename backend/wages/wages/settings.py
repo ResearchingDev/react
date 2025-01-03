@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -159,3 +160,9 @@ DEFAULT_FROM_EMAIL = 'brightuitesting@gmail.com'
 
 DJANGO_PUBLIC_API_BASE_URL= "http://localhost:3000" 
 JWT_SECRET_KEY  = "Wf5qrFtG1XQE4VWipj6FWXT3T2yFNQcGHg5IDhzzQNE"
+
+# This is the base directory of your project
+FILE_BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MEDIA_URL = '/uploads/'  # URL to access media files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'backend/wages/uploads')  # Path to media files
