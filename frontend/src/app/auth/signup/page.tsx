@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef   } from "react";
 import Label from '@/components/Forms/LabelField';
 import InputField from '@/components/Forms/InputField';
+import Loader from '@/components/Loader';
 import Link from "next/link";
 import Image from "next/image";
 import axios from 'axios';
@@ -29,6 +30,7 @@ const SignUp: React.FC = () => {
   const isFetched = useRef(false);  // Track if the token has been fetched
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   /** useRouter - create new routes */
   const router = useRouter()
   /** fetchCsrfToken method used to set csrf token into required variable */
@@ -108,6 +110,7 @@ const SignUp: React.FC = () => {
     e.preventDefault();
 
     if (validateForm()) {
+      setIsLoading(true);
       await axios.post( `${apiBaseURL}/api/signup/`, formData, {
           headers: {
               "Content-Type": "application/json",  // Correct content type
@@ -127,6 +130,7 @@ const SignUp: React.FC = () => {
           setTimeout(() => {
             router.push('/auth/signin');
           }, 2000); // Delay the redirection to show the success message for 2 seconds
+          setIsLoading(false);
       })
       .catch(err => {
         if (err.response && err.response.data.errors) {
@@ -481,7 +485,7 @@ const SignUp: React.FC = () => {
                     type="submit"
                     value="Create account"
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
-                  />
+                    disabled={isLoading}/>
                 </div>
 
                 <div className="mt-6 text-center">
@@ -493,6 +497,7 @@ const SignUp: React.FC = () => {
                   </p>
                 </div>
               </form>
+              {isLoading && <Loader />} 
             </div>
           </div>
         </div>
