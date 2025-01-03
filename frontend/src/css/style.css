@@ -263,3 +263,39 @@ input[type="search"]::-webkit-search-cancel-button {
 .ReactModal__Overlay {
     z-index: 9999;
 }
+.rounded-full img {
+    margin-bottom: 10px;
+}
+.err {
+    font-size: 14px;
+}
+.custome-table .rdt_TableCol_Sortable, .custome-table .rdt_TableCell {
+    font-size: 16px;
+}
+.dark .rdt_TableHeader, .dark .rdt_TableRow, .dark .rdt_Pagination {
+    background-color: rgb(36 48 63);
+    color: #fff;
+    border-color: #ffffff5e;
+}
+.dark .rdt_TableHeadRow {
+    background-color: rgb(49 61 74);
+    color: #fff;
+    border-color: #ffffff5e;
+}
+.dark .cPTFZC:disabled, .dark .cPTFZC {
+    fill: rgb(255 255 255);
+}
+.main-container {
+    min-height: calc(100vh - 65px);
+}
+.dark .ReactModal__Content {
+    background: rgb(49 61 74) !important;
+    color: #fff;
+    border-color: #ffffff5e;
+}
+.dark .modal-title {
+    color: #fff;
+}
+.dnone {
+    display: none;
+}
