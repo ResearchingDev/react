@@ -71,7 +71,9 @@ def checkGetUserRoleExists():
         new_role = {
             "vrole_name": "Admin",
             "estatus":"Active",
+            "tdeleted_status":0,
             "dcreated_at": datetime.now(),
+            "dupdated_at": datetime.now(),
         }
         result = users_role_collection.insert_one(new_role)
         return str(result.inserted_id)
@@ -188,7 +190,7 @@ class SigninAPIView(APIView):
                     user_image_path = ""
                     if user_images:
                         # Construct the full path for the profile image
-                        image_path = os.path.join(settings.FILE_BASE_DIR, user_images.lstrip('/'))
+                        image_path = os.path.join(settings.BASE_DIR_MEDIA, user_images.lstrip('/'))
                         image_path_exists = os.path.exists(image_path)
                         if(image_path_exists):
                             user_image_path = user_images

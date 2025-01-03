@@ -109,7 +109,7 @@ class ProfileList(APIView):
                 'vuser_name': user_profile.get('vuser_name'),
                 'vemail': user_profile.get('vemail'),
                 'vphone_number': user_profile.get('vphone_number'),
-                'profile_picture': user_profile.get('profile_picture')
+                'profile_picture': user_profile.get('vprofile_image')
             }
 
             return Response(response_data)
@@ -156,7 +156,7 @@ class ProfileAddOrUpdate(APIView):
             new_file_name = f"{generate_random_filename()}_{original_file_name.split('.')[0]}.{extension}"
             file_path = default_storage.save(f'uploads/{new_file_name}', file)
             file_url = f'{settings.MEDIA_URL}{file_path}'
-            update_data['profile_picture'] = file_url
+            update_data['vprofile_image'] = file_url
 
         # Update in MongoDB
         result = users_collection.update_one({'_id': object_id}, {'$set': update_data})

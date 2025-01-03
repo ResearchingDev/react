@@ -51,6 +51,7 @@ const Profile = () => {
     const getUserProfile = async () => {
       try {
         const data = await fetchUserProfile();
+        console.log(data)
         setProfile([data]); // Overwrite with new data
         setUsername(data.vuser_name);
         setFirstName(data.vfirst_name);
@@ -90,7 +91,7 @@ const Profile = () => {
       newErrors.email = "Invalid email format";
       valid = false;
     }
-
+    console.log(formData)
     if (!formData.phoneNumber?.trim()) {
       newErrors.phoneNumber = "Phone number is required";
       valid = false;
@@ -113,7 +114,12 @@ const Profile = () => {
     setErrors(newErrors);
     return valid;
   };
-
+    
+  /** handleChange method used to push form data into required obj */
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
   //File Onchange action
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files ? e.target.files[0] : null;
@@ -218,7 +224,7 @@ const Profile = () => {
                           id="fullName"
                           placeholder="Enter first name"
                           defaultValue={profile[0]?.vfirst_name || ''}
-                          onChange={(e) => setFirstName(e.target.value)}
+                          onChange={handleChange}
                         />
                         {errors.firstName && <p className='err' style={styles.error}>{errors.firstName}</p>}
                       </div>
@@ -239,7 +245,7 @@ const Profile = () => {
                         placeholder="Enter phone number"
                         defaultValue={profile[0]?.vphone_number || ''}
                         value={phoneNumber}
-                        onChange={(e) => setphoneNumber(e.target.value)}
+                        onChange={handleChange}
                       />
                       {errors.phoneNumber && <p className='err' style={styles.error}>{errors.phoneNumber}</p>}
                     </div>
@@ -285,7 +291,7 @@ const Profile = () => {
                           id="emailAddress"
                           placeholder="Enter email"
                           defaultValue={profile[0]?.vemail || ''}
-                          onChange={(e) => setEmail(e.target.value)}
+                          onChange={handleChange}
                         />
                         {errors.email && <p className='err' style={styles.error}>{errors.email}</p>}
                       </div>
@@ -305,7 +311,7 @@ const Profile = () => {
                         id="Username"
                         placeholder="Enter username"
                         defaultValue={profile[0]?.vuser_name || ''}
-                        onChange={(e) => setUsername(e.target.value)}
+                        onChange={handleChange}
                       />
                       {errors.username && <p className='err' style={styles.error}>{errors.username}</p>}
                     </div>

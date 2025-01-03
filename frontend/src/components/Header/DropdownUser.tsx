@@ -1,5 +1,5 @@
 "use client"; 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios';
 import Link from "next/link";
 import Image from "next/image";
@@ -7,7 +7,12 @@ import ClickOutside from "@/components/ClickOutside";
 import { useRouter } from 'next/navigation'
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const DropdownUser = () => {
+  const [userImage, setUserImage] = useState<string | null>(null);
     const router = useRouter();
+    useEffect(() => {
+      const storedImage = sessionStorage.getItem('userImage') ? `${apiBaseURL}/${sessionStorage.getItem('userImage')}` : "/images/user/user-01.png";
+      setUserImage(storedImage);
+    }, []);
     const handleLogout = async () => {
       const log_history_id = sessionStorage.getItem('log_history_id');
       await axios.post( `${apiBaseURL}/api/signout/`, { log_history_id }, {
@@ -37,16 +42,18 @@ const DropdownUser = () => {
         </span>
 
         <span className="h-12 w-12 rounded-full">
-          <Image
+        {userImage && (
+          <img
             width={112}
             height={112}
-            src={"/images/user/user-01.png"}
+            src={userImage}
             style={{
               width: "auto",
               height: "auto",
             }}
             alt="User"
           />
+          )}
         </span>
 
         <svg
