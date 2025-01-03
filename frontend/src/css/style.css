@@ -282,7 +282,7 @@ input[type="search"]::-webkit-search-cancel-button {
     color: #fff;
     border-color: #ffffff5e;
 }
-.dark .cPTFZC {
+.dark .cPTFZC:disabled, .dark .cPTFZC {
     fill: rgb(255 255 255);
 }
 .main-container {
@@ -295,4 +295,7 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 .dark .modal-title {
     color: #fff;
+}
+.dnone {
+    display: none;
 }
