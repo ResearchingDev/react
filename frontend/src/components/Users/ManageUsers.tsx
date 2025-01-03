@@ -20,7 +20,7 @@ const DataTableComponent: React.FC = () => {
   const fetchData = async (page: number, perPage: number) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${apiBaseURL}/api/records/`, {
+      const response = await axios.get(`${apiBaseURL}/api/user-list/`, {
         params: { page, per_page: perPage },
       });
       setData(response.data.data);
@@ -34,12 +34,10 @@ const DataTableComponent: React.FC = () => {
 
   const handlePageChange = (page: number): void => {
     setPage(page);
-    fetchData(page, perPage);
   };
 
   const handlePerRowsChange = (newPerPage: number, page: number): void => {
     setPerPage(newPerPage);
-    fetchData(page, newPerPage);
   };
 
   useEffect(() => {
@@ -48,13 +46,34 @@ const DataTableComponent: React.FC = () => {
 
   const columns = [
     {
-      name: 'User',
-      selector: (row: any) => row.vrole_name,
+      name: 'ID',
+      selector: (row: any) => row._id, // Display the MongoDB ID
+      sortable: true,
+      omit: true, // Hide the column if not required
+    },
+    {
+      name: <strong>First name</strong>,
+      selector: (row: any) => row.vfirst_name,
       sortable: true,
     },
     {
-      name: 'Status',
-      selector: (row: any) => row.status,
+      name: <strong>Last name</strong>,
+      selector: (row: any) => row.vlast_name,
+      sortable: true,
+    },
+    {
+      name: <strong>User name</strong>,
+      selector: (row: any) => row.vuser_name,
+      sortable: true,
+    },
+    {
+      name: <strong>Email</strong>,
+      selector: (row: any) => row.vemail,
+      sortable: true,
+    },
+    {
+      name: <strong>Status</strong>,
+      selector: (row: any) => row.estatus,
       sortable: true,
     },
     {
@@ -94,8 +113,16 @@ const DataTableComponent: React.FC = () => {
     setIsisAction('Edit User');
   };
   
-  const handleDelete = (row: any) => {
-    console.log('Delete clicked for:', row);
+  const handleDelete = async(row: any) => {
+    if (row._id) {
+      const response = await axios.delete(`${apiBaseURL}/api/delete-user/${row._id}/`);
+      if (response.status === 200) {
+        alert(response.data.message || 'User deleted successfully!');
+        fetchData(page, perPage);
+      } else {
+        alert(response.data.error || 'Failed to delete user.');
+      }
+    }
   };
   const handleAdd = (row: any) => {
     setSelectedItem(row);
@@ -130,8 +157,6 @@ const DataTableComponent: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
         itemDetails={selectedItem}
         IsisAction ={isAction}
-        onSave={handleDelete}
-        fetchData={fetchData} 
         page={page} 
         perPage={perPage}
       />

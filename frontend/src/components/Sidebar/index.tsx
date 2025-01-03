@@ -84,7 +84,6 @@ const menuGroups = [
         children: [
           { label: "Manage Users", route: "/users/manage-users" },
           { label: "Manage Users Role", route: "/user_roles/manage-user-role" },
-          { label: "Add User", route: "/users/add-user" },
         ],
       },
       // {

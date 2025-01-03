@@ -97,6 +97,7 @@ class SignupAPIView(APIView):
                         "vpassword": hashed_password.decode('utf-8'),
                         "vemail": email,
                         'estatus':'Active',
+                        'tdeleted_status':0,
                         "dcreated_at": datetime.utcnow(),  # Add current timestamp
                     }
                     # Insert the user data into the MongoDB collection

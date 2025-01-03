@@ -52,11 +52,11 @@ const SignIn: React.FC = () => {
           const newErrors: any = {};
           let isValid = true;
           if (!formData.email) {
-            newErrors.email = "Please enter email or username.";
+            newErrors.email = "This field is required.";
             isValid = false;
           }
           if (!formData.password) {
-            newErrors.password = "Please enter password.";
+            newErrors.password = "This field is required.";
             isValid = false;
           }
           setErrors(newErrors); 

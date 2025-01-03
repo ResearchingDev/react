@@ -1,90 +1,330 @@
+'use client'; // This enables client-side interactivity
 import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal';
-
-  interface EditModalProps {
-    isOpen: boolean;
-    IsisAction: string;
-    onClose: () => void;
-    itemDetails: { userRole: string; status: string } | null;
-    onSave: (updatedItem: { userRole: string; status: string }) => void;
-    fetchData: (page: number, perPage: number) => Promise<void>;
-    page: number;
-    perPage: number;
-  }
-  const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, IsisAction, itemDetails, onSave, fetchData, page, perPage  }) => {
+import axios from 'axios';
+import Modal from "react-modal";
+import { useRouter } from 'next/navigation'
+const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
+interface EditModalProps {
+  isOpen: boolean;
+  IsisAction: string;
+  onClose: () => void;
+  itemDetails: { estatus: string; vfirst_name: string; vlast_name: string; vpassword: string; vprofile_image: string; vuser_name: string; vemail: string;  irole_id: string; } | null; // Details of the selected user or null
+  page: number;
+  perPage: number;
+}
+const EditModal: React.FC<EditModalProps> = ({
+  isOpen,
+  onClose,
+  IsisAction,
+  itemDetails,
+  page,
+  perPage,
+}) => {
+  const router = useRouter()
+  const [message, setMessage] = useState("");
   const [formData, setFormData] = useState({
-    userRole: '',
-    status: '',
+    first_name: "",
+    last_name: "",
+    user_name: "",
+    email: "",
+    password: "",
+    user_role: "",
+    status: "",
   });
-
-  // Load item details into the form when modal opens
-  useEffect(() => {
-    if (itemDetails) {
-      setFormData({
-        userRole: itemDetails.userRole || '',
-        status: itemDetails.status || 'inactive', // Default to 'inactive'
-      });
-    }
-  }, [itemDetails]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const [errors, setErrors] = useState({
+    first_name: "",
+    last_name: "",
+    user_name: "",
+    email: "",
+    password: "",
+    profile_image: "",
+    user_role: "",
+    status: "",
+    });
+  const [profile_image, setFile] = useState<File | null>(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
-  const handleSave = () => {
-    onSave(formData);
-    onClose();
+  useEffect(() => {
+      if (itemDetails) {
+        setFormData({
+          first_name: itemDetails.vfirst_name || '',
+          last_name: itemDetails.vlast_name || '',
+          user_name: itemDetails.vuser_name || '',
+          email: itemDetails.vemail || '',
+          password: '', // Assuming password is available
+          user_role: '',  // Set a default user_role if necessary
+          status: itemDetails.estatus || 'inactive',
+        });
+      }
+    }, [itemDetails]);
+  const validateForm = (): boolean => {
+    let isValid = true;
+    const newErrors = { first_name: '', user_name: '', email: '', password: '', last_name: '', profile_image:'', user_role:'', status:'' };
+    // Validate First Name
+    if (!formData.first_name.trim()) {
+      newErrors.first_name = 'This field is required';
+      isValid = false;
+    }
+    // Validate last_name
+    if (!formData.last_name.trim()) {
+      newErrors.last_name = 'This field is required';
+      isValid = false;
+    }
+    // Validate User Name
+    if (!formData.user_name.trim()) {
+      newErrors.user_name = 'This field is required';
+      isValid = false;
+    } else if (formData.user_name.length < 5) {
+      newErrors.user_name = 'User name must be at least 5 characters';
+      isValid = false;
+    }
+    // Validate Email
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!formData.email.trim()) {
+      newErrors.email = 'This field is required';
+      isValid = false;
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+      isValid = false;
+    }
+    // Validate Password
+    if (!formData.password.trim()) {
+      newErrors.password = 'This field is required';
+      isValid = false;
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+      isValid = false;
+    }
+    if (!formData.user_role.trim()) {
+      newErrors.user_role = 'This field is required';
+      isValid = false;
+    }
+    if (!formData.status.trim()) {
+      newErrors.status = 'This field is required';
+      isValid = false;
+    }
+    setErrors(newErrors);
+    return isValid;
+  };
+   //File Onchange action
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = e.target.files ? e.target.files[0] : null;
+      if (selectedFile) {
+        setFile(selectedFile);
+        const fileUrl = URL.createObjectURL(selectedFile);
+        setThumbnailUrl(fileUrl);
+      }
+    };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      const formDataToSubmit = new FormData();
+      formDataToSubmit.append('first_name', formData.first_name);
+      formDataToSubmit.append('last_name', formData.last_name);
+      formDataToSubmit.append('user_name', formData.user_name);
+      formDataToSubmit.append('email', formData.email);
+      formDataToSubmit.append('password', formData.password);
+      formDataToSubmit.append('user_role', formData.user_role);
+      formDataToSubmit.append('status', formData.status);
+      if (profile_image) {
+          formDataToSubmit.append('profile_image', profile_image); // Append the profile image
+      }
+      try {
+        await axios.post( `${apiBaseURL}/api/add-user/`, formDataToSubmit, {
+          headers: {
+              "Content-Type": "multipart/form-data",  // Correct content type
+          }
+      })
+      .then(response => {
+          setMessage(response.data.message);
+          setFormData({
+            first_name: "",
+            last_name: "",
+            user_name: "",
+            email: "",
+            password: "",
+            user_role: "",
+            status: "",
+          });
+        // Redirect to another page after successful sign-in
+          setTimeout(() => {
+            router.push('/users/manage-users');
+          }, 2000); // Delay the redirection to show the success message for 2 seconds
+      })
+        onClose();
+      } catch (error) {
+      }
+    } else {
+      console.log('Form has errors');
+    }
   };
 
   return (
-    <Modal isOpen={isOpen} onRequestClose={onClose} contentLabel="Edit User"
-    style={{
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      contentLabel="Add User"
+      style={{
         content: {
-          top: '50%',
-          left: '50%',
-          right: 'auto',
-          bottom: 'auto',
-          marginRight: '-50%',
-          transform: 'translate(-50%, -50%)',
-          width: '400px',
-          padding: '20px',
-          borderRadius: '8px',
+          top: "50%",
+          left: "50%",
+          right: "auto",
+          bottom: "auto",
+          marginRight: "-50%",
+          transform: "translate(-50%, -50%)",
+          width: "600px",
+          padding: "20px",
+          borderRadius: "8px",
         },
         overlay: {
-          backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          backgroundColor: "rgba(0, 0, 0, 0.75)",
         },
-      }}>
-      <h3 className="mb-4 text-2xl font-bold text-black text-center dark:text-white sm:text-title-xl2">{IsisAction}</h3>
-      <form>
-        <div className='mb-4'>
-          <label className="mb-3 block text-sm font-medium text-black dark:text-white">User:</label>
-          <input
-            type="text"
-            name="userRole"
-            value={formData.userRole}
-            onChange={handleChange}
-            placeholder="Enter user"
-            className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-          />
+      }}
+    >
+      <h2 className="mb-6 text-2xl font-bold text-center text-black dark:text-white">
+        {IsisAction}
+      </h2>
+      <form onSubmit={handleSubmit}>
+        {/* Grid Layout with col-4 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* First Name */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+              First Name
+            </label>
+            <input
+              type="text"
+              name="first_name"
+              value={formData.first_name} // Placeholder for `firstName`
+              onChange={handleChange}
+              className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+            />
+            {errors.first_name && <p style={{ color: 'red' }}>{errors.first_name}</p>}
+          </div>
+
+          {/* Last Name */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+              Last Name
+            </label>
+            <input
+              type="text"
+              name="last_name"
+              value={formData.last_name} // Placeholder for `lastName`
+              onChange={handleChange}
+              className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+            />
+            {errors.last_name && <p style={{ color: 'red' }}>{errors.last_name}</p>}
+          </div>
+           {/* Password */}
+           <div>
+            <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+              Username
+            </label>
+            <input
+              type="text"
+              name="user_name"
+              value={formData.user_name} // Placeholder for `password`
+              onChange={handleChange}
+              className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+            />
+            {errors.user_name && <p style={{ color: 'red' }}>{errors.user_name}</p>}
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email} // Placeholder for `email`
+              onChange={handleChange}
+              className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+            />
+            {errors.email && <p style={{ color: 'red' }}>{errors.email}</p>}
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password} // Placeholder for `password`
+              onChange={handleChange}
+              className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+            />
+            {errors.password && <p style={{ color: 'red' }}>{errors.password}</p>}
+          </div>
+          {/* Password */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+              profile Image
+            </label>
+            <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            {errors.profile_image && <p style={{ color: 'red' }}>{errors.profile_image}</p>}
+          </div>
+          {/* User Role */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+              User Role
+            </label>
+            <select
+              name="user_role"
+              value={formData.user_role}
+              onChange={handleChange}
+              className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+            >
+              <option value="">select</option>
+              <option value="1">Admin</option>
+            </select>
+            {errors.user_role && <p style={{ color: 'red' }}>{errors.user_role}</p>}
+          </div>
+
+          {/* Status */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+              Status
+            </label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+            >
+              <option value="">Select Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            {errors.status && <p style={{ color: 'red' }}>{errors.status}</p>}
+          </div>
         </div>
-        <div>
-          <label className="mb-3 block text-sm font-medium text-black dark:text-white">Status:</label>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"  
+        {/* Buttons */}
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            className="rounded-md bg-primary px-6 py-2 text-white hover:bg-opacity-90"
+            type="submit"
           >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-        </div>
-        <div>
-          <button className="mt-3 mr-3 inline-flex items-center justify-center float-right rounded-md bg-primary px-10 py-4 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10" type="button" onClick={handleSave}>
             Save
           </button>
-          <button className="mt-3 mr-3 inline-flex items-center justify-center float-right rounded-md bg-danger px-10 py-4 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10" type="button" onClick={onClose}>
+          <button
+            className="rounded-md bg-gray-400 px-6 py-2 text-white hover:bg-opacity-90"
+            type="button"
+            onClick={onClose}
+          >
             Cancel
           </button>
         </div>
