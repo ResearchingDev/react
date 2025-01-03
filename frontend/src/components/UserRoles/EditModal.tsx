@@ -6,8 +6,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
     isOpen: boolean; // For the modal's open state
     IsisAction: string;
     onClose: () => void; // Callback function to close the modal
-    itemDetails: { userRole: string; status: string } | null; // Details of the selected user or null
-    onSave: (updatedItem: { userRole: string; status: string }) => void; // Callback function to save changes
+    itemDetails: { _id: string; vrole_name: string; estatus: string } | null; // Details of the selected user or null
     fetchData: (page: number, perPage: number) => Promise<void>; // Add fetchData prop
     page: number;
     perPage: number;
@@ -16,28 +15,19 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
     userRole?: string;
     status?: string;
   };
-  const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemDetails, onSave, IsisAction, fetchData, page, perPage }) => {
+  const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemDetails, IsisAction, fetchData, page, perPage }) => {
       const [userRole, setUserRole] = useState<string>("");
+      const [_id, set_id] = useState<string>("");
       const [status, setStatus] = useState<string>("");
       const [errors, setErrors] = useState<Errors>({});
       const [isFormValid, setIsFormValid] = useState<boolean>(false);
       const [selectedOption, setSelectedOption] = useState<string>("");
       const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
       const [formData, setFormData] = useState({
+        _id: '',
         userRole: '',
         status: '',
       });
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        if (name === "userrole") {
-          setUserRole(value);
-        } else if (name === "status") {
-          setStatus(value);
-        }
-      };
-    //   useEffect(() => {
-    //     validateForm();
-    //   }, [userRole, status]);
     
       // Validate form
       const validateForm = () => {
@@ -63,7 +53,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
         return;
       }
     
-      const payload = { userRole, status };
+      const payload = { userRole, status, _id};
       try {
         const response = await fetch(`${apiBaseURL}/api/manageuserrole/`, {
           method: "POST",
@@ -77,7 +67,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
     
         if (response.ok) {
           toast.success(data.message);
-          setFormData({ userRole: "", status: "" });
+          setFormData({ _id:"", userRole: "", status: "" });
           fetchData(page, perPage);
           onClose();
         } else {
@@ -92,12 +82,19 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
   // Load item details into the form when modal opens
   useEffect(() => {
     if (itemDetails) {
-        console.log(itemDetails.userRole)
+      set_id(itemDetails._id);
+      setUserRole(itemDetails.vrole_name);
+      setStatus(itemDetails.estatus);
       setFormData({
-        userRole: itemDetails.userRole || '',
-        status: itemDetails.status || 'inactive', // Default to 'inactive'
+        _id: itemDetails._id || '',
+        userRole: itemDetails.vrole_name || '',
+        status: itemDetails.estatus || 'inactive', // Default to 'inactive'
       });
+    }else {
+      set_id(""); // Reset _id when no item is selected
+      setStatus("active");
     }
+    setErrors({});
   }, [itemDetails]);
   const styles = {
       error: {
@@ -126,6 +123,12 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
       }}>
       <div className="modal-title">{IsisAction}</div>
       <form onSubmit={handleSubmit} className='grid gap-y-6'>
+      <input
+                type="hidden"
+                name="_id"
+                value={_id}
+                onChange={(e) => set_id(e.target.value)}
+            />
         <div>
           <label className="mb-3 block text-black dark:text-white">User Role:</label>
           <input
@@ -134,6 +137,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                 placeholder="Enter User Role"
                 className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                 value={userRole}
+                defaultValue={itemDetails?.vrole_name || ""}
                 onChange={(e) => setUserRole(e.target.value)} // Use handleChange here
             />
             {errors.userRole && <p style={styles.error}>{errors.userRole}</p>}

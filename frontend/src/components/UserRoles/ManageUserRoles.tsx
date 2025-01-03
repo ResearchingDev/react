@@ -7,6 +7,7 @@ import { FaEdit, FaTrashAlt, FaPlus } from 'react-icons/fa'; // For icons
 import EditModal from './EditModal';
 import Link from "next/link";
 import { deleteItem } from '../../api/user';
+import Swal from "sweetalert2";
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const DataTableComponent: React.FC = () => {
   const [data, setData] = useState<any[]>([]); // Adjust `any[]` to your data structure type if known
@@ -50,12 +51,12 @@ const DataTableComponent: React.FC = () => {
   const columns = [
     {
       name: 'User Role',
-      selector: (row: any) => row.role_name,
+      selector: (row: any) => row.vrole_name,
       sortable: true,
     },
     {
       name: 'Status',
-      selector: (row: any) => row.status,
+      selector: (row: any) => row.estatus,
       sortable: true,
     },
     {
@@ -74,7 +75,7 @@ const DataTableComponent: React.FC = () => {
             <FaEdit />
           </button>
           <button
-            onClick={() => handleDelete(row)}
+            onClick={() => handleDelete(row._id)}
             style={{
               backgroundColor: 'transparent',
               border: 'none',
@@ -90,15 +91,31 @@ const DataTableComponent: React.FC = () => {
   ];
 
   const handleEdit = (row: any) => {
-    console.log(row)
     setSelectedItem(row);
     setIsModalOpen(true);
     setIsisAction('Edit User');
   };
   
-  const handleDelete = async (row: any) => {
-    await deleteItem(row._id);
-    fetchData(page, perPage);
+  const handleDelete = async (itemId: string) => {
+    const confirmed = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+  
+    if (confirmed.isConfirmed) {
+      const response = await deleteItem(itemId);
+      if (response) {
+        Swal.fire("Deleted!", "The item has been deleted.", "success");
+        fetchData(page, perPage); // Refresh data after successful deletion
+      } else {
+        Swal.fire("Error!", "Failed to delete the item.", "error");
+      }
+    }
   };
   const handleAdd = (row: any) => {
     setSelectedItem(row);
@@ -137,7 +154,6 @@ const DataTableComponent: React.FC = () => {
         fetchData={fetchData} 
         page={page} 
         perPage={perPage}
-        onSave={handleDelete}
       />
       </div>
   );
