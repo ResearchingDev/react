@@ -23,6 +23,22 @@ const Profile = () => {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  //Set FormData
+  const [formData, setFormData] = useState({
+    username: "",
+    firstName: "",
+    email: "",
+    phoneNumber: "",
+    file: "",
+  });
+  //Set Form Errors
+  const [errors, setErrors] = useState({
+    username: "",
+    firstName: "",
+    email: "",
+    phoneNumber: "",
+    file: "",
+  });
   //Fetch User details
   useEffect(() => {
     if (!id) {
@@ -35,6 +51,17 @@ const Profile = () => {
       try {
         const data = await fetchUserProfile();
         setProfile([data]); // Overwrite with new data
+        setUsername(data.vuser_name);
+        setFirstName(data.vfirst_name);
+        setphoneNumber(data.vphone_number);
+        setEmail(data.vemail);
+        setFormData({
+          username: data.vuser_name || '',
+          firstName: data.vfirst_name || '',
+          email: data.vemail, // Default to 'inactive'
+          phoneNumber: data.vphone_number,
+          file: data.profile_picture,
+        });
       } catch (error) {
         console.error('Error:', error);
       } finally {
@@ -44,22 +71,6 @@ const Profile = () => {
 
     getUserProfile();
   }, [id, router]);
-
-  //Set FormData
-  const [formData, setFormData] = useState({
-    username: "",
-    firstName: "",
-    email: "",
-    phoneNumber: "",
-  });
-  //Set Form Errors
-  const [errors, setErrors] = useState({
-    username: "",
-    firstName: "",
-    email: "",
-    phoneNumber: "",
-    file: "",
-  });
 
   //Form Validation
   const validate = () => {
@@ -79,7 +90,7 @@ const Profile = () => {
       valid = false;
     }
 
-    if (!formData.phoneNumber.trim()) {
+    if (!formData.phoneNumber?.trim()) {
       newErrors.phoneNumber = "Phone number is required";
       valid = false;
     } else if (!/^\d{10}$/.test(formData.phoneNumber)) {
@@ -149,7 +160,13 @@ const Profile = () => {
       }
     }
   };
-  
+  const styles = {
+      error: {
+        color: 'red',
+        fontSize: '14px',
+        marginBottom: '6px',
+    },
+  }
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-242.5">
@@ -202,6 +219,7 @@ const Profile = () => {
                           defaultValue={profile[0]?.vfirst_name || ''}
                           onChange={(e) => setFirstName(e.target.value)}
                         />
+                        {errors.firstName && <p className='err' style={styles.error}>{errors.firstName}</p>}
                       </div>
                     </div>
 
@@ -219,8 +237,10 @@ const Profile = () => {
                         id="phoneNumber"
                         placeholder="Enter phone number"
                         defaultValue={profile[0]?.vphone_number || ''}
+                        value={phoneNumber}
                         onChange={(e) => setphoneNumber(e.target.value)}
                       />
+                      {errors.phoneNumber && <p className='err' style={styles.error}>{errors.phoneNumber}</p>}
                     </div>
                   </div>
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
@@ -266,6 +286,7 @@ const Profile = () => {
                           defaultValue={profile[0]?.vemail || ''}
                           onChange={(e) => setEmail(e.target.value)}
                         />
+                        {errors.email && <p className='err' style={styles.error}>{errors.email}</p>}
                       </div>
                     </div>
 
@@ -285,6 +306,7 @@ const Profile = () => {
                         defaultValue={profile[0]?.vuser_name || ''}
                         onChange={(e) => setUsername(e.target.value)}
                       />
+                      {errors.username && <p className='err' style={styles.error}>{errors.username}</p>}
                     </div>
                   </div>
                   <div className="mb-5.5">
@@ -354,6 +376,7 @@ const Profile = () => {
                         <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
                         <p>(max, 800 X 800px)</p>
                       </div>
+                      {errors.file && <p className='err' style={styles.error}>{errors.file}</p>}
                     </div>
                   </div>
                   <div className="flex justify-end gap-4.5">
