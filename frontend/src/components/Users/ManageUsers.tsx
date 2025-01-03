@@ -77,7 +77,7 @@ const DataTableComponent: React.FC = () => {
       sortable: true,
     },
     {
-      name: 'Action',
+      name: <strong>Action</strong>,
       cell: (row: any) => (
         <div>
           <button
@@ -160,6 +160,7 @@ const DataTableComponent: React.FC = () => {
         IsisAction ={isAction}
         page={page} 
         perPage={perPage}
+        fetchData={fetchData} 
       />
       </div>
   );

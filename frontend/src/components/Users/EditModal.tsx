@@ -11,6 +11,7 @@ interface EditModalProps {
   itemDetails: { estatus: string; vfirst_name: string; vlast_name: string; vpassword: string; vprofile_image: string; vuser_name: string; vemail: string;  irole_id: string; } | null; // Details of the selected user or null
   page: number;
   perPage: number;
+  fetchData: (page: number, perPage: number) => Promise<void>; 
 }
 const EditModal: React.FC<EditModalProps> = ({
   isOpen,
@@ -19,6 +20,7 @@ const EditModal: React.FC<EditModalProps> = ({
   itemDetails,
   page,
   perPage,
+  fetchData,
 }) => {
   const router = useRouter()
   const [message, setMessage] = useState("");
@@ -156,6 +158,7 @@ const EditModal: React.FC<EditModalProps> = ({
             router.push('/users/manage-users');
           }, 2000); // Delay the redirection to show the success message for 2 seconds
       })
+        fetchData(page, perPage);
         onClose();
       } catch (error) {
       }
