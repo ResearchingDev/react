@@ -81,6 +81,8 @@ const SignIn: React.FC = () => {
               if (postResponse.ok) {
                 sessionStorage.setItem('userId', postData.user_id);
                 sessionStorage.setItem('log_history_id', postData.log_history_id);
+                sessionStorage.setItem('userName', postData.user_full_name);
+                sessionStorage.setItem('userRole', postData.user_role_name);
                 router.push('/profile')
               } else {
                 setMessage(postData.message);
