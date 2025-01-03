@@ -23,6 +23,7 @@ const Profile = () => {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const imageUrl_M = "http://localhost:8000/uploads/durz1r3l_Manikandan_Software_Developer.png";
   //Set FormData
   const [formData, setFormData] = useState({
     username: "",
@@ -327,7 +328,13 @@ const Profile = () => {
                     {profile && profile.length > 0 && profile[0].profile_picture && (
                       <div>
                         <h4>Uploaded Image:</h4>
-                        <Image src={`${apiBaseURL}/${profile[0].profile_picture}`}   alt="Uploaded" width={200} height={200} />
+                        <img
+                          alt="Uploaded"
+                          loading="lazy"
+                          width="200"
+                          height="200"
+                          src={`${apiBaseURL}/${profile[0].profile_picture}`}
+                        />
                       </div>
                     )}
                     <div

@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -159,3 +159,7 @@ DEFAULT_FROM_EMAIL = 'brightuitesting@gmail.com'
 
 DJANGO_PUBLIC_API_BASE_URL= "http://localhost:3000" 
 JWT_SECRET_KEY  = "Wf5qrFtG1XQE4VWipj6FWXT3T2yFNQcGHg5IDhzzQNE"
+
+BASE_DIR_MEDIA = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MEDIA_URL = '/uploads/'  # The base URL for accessing media files
+MEDIA_ROOT = os.path.join(BASE_DIR_MEDIA, 'uploads')  # The directory where media files are stored
