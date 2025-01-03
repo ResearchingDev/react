@@ -58,7 +58,7 @@ const EditModal: React.FC<EditModalProps> = ({
           last_name: itemDetails.vlast_name || '',
           user_name: itemDetails.vuser_name || '',
           email: itemDetails.vemail || '',
-          password: '', // Assuming password is available
+          password:'', // Assuming password is available
           user_role: '',  // Set a default user_role if necessary
           status: itemDetails.estatus || 'inactive',
         });
@@ -68,6 +68,7 @@ const EditModal: React.FC<EditModalProps> = ({
     let isValid = true;
     const newErrors = { first_name: '', user_name: '', email: '', password: '', last_name: '', profile_image:'', user_role:'', status:'' };
     // Validate First Name
+    console.log(IsisAction);
     if (!formData.first_name.trim()) {
       newErrors.first_name = 'This field is required';
       isValid = false;
@@ -95,12 +96,14 @@ const EditModal: React.FC<EditModalProps> = ({
       isValid = false;
     }
     // Validate Password
-    if (!formData.password.trim()) {
-      newErrors.password = 'This field is required';
-      isValid = false;
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-      isValid = false;
+    if(IsisAction != 'Edit User'){
+      if (!formData.password.trim()) {
+        newErrors.password = 'This field is required';
+        isValid = false;
+      } else if (formData.password.length < 6) {
+        newErrors.password = 'Password must be at least 6 characters';
+        isValid = false;
+      }
     }
     if (!formData.user_role.trim()) {
       newErrors.user_role = 'This field is required';
@@ -137,7 +140,13 @@ const EditModal: React.FC<EditModalProps> = ({
           formDataToSubmit.append('profile_image', profile_image); // Append the profile image
       }
       try {
-        await axios.post( `${apiBaseURL}/api/add-user/`, formDataToSubmit, {
+        let url;
+        if (IsisAction !== 'Edit User') {
+          url = `${apiBaseURL}/api/add-user/`; // Set URL for add-user
+        } else {
+          url = `${apiBaseURL}/api/edit-user/`; // Set URL for edit-user
+        }
+      await axios.post(url, formDataToSubmit, {
           headers: {
               "Content-Type": "multipart/form-data",  // Correct content type
           }

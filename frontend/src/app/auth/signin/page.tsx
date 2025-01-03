@@ -2,6 +2,7 @@
 import React, { useState, useEffect  } from "react";
 import Label from '@/components/Forms/LabelField';
 import InputField from '@/components/Forms/InputField';
+import Loader from '@/components/Loader';
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from 'next/navigation'
@@ -12,6 +13,7 @@ const SignIn: React.FC = () => {
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [csrfToken, setCsrfToken] = useState('');
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
       email: "",
       password: "",
@@ -65,6 +67,7 @@ const SignIn: React.FC = () => {
       const handleSubmit = async (e: React.FormEvent) => {
           e.preventDefault();
           if (validateForm()) {
+            setIsLoading(true);
             try {
               const postResponse  = await fetch(`${apiBaseURL}/api/signin/`, {
                 method: "POST",
@@ -83,6 +86,7 @@ const SignIn: React.FC = () => {
                 sessionStorage.setItem('log_history_id', postData.log_history_id);
                 sessionStorage.setItem('userName', postData.user_full_name);
                 sessionStorage.setItem('userRole', postData.user_role_name);
+                sessionStorage.setItem('userImage', postData.user_image_path);
                 router.push('/profile')
               } else {
                 setMessage(postData.message);
@@ -91,6 +95,7 @@ const SignIn: React.FC = () => {
                 }, 1000);
                 console.log("Failed to post data:", postData.message);
               }
+              setIsLoading(false);
           }
           catch (error) {
             console.log("Network error:", error);
@@ -334,7 +339,7 @@ const SignIn: React.FC = () => {
                   type="submit"
                   value="Sign In"
                   className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
-                />
+                  disabled={isLoading}/>
               </div>
 
               <div className="mt-6 text-center">
@@ -346,6 +351,7 @@ const SignIn: React.FC = () => {
                 </p>                
               </div>
             </form>
+            {isLoading && <Loader />} 
           </div>
         </div>
       </div>

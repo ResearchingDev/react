@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from server.auth.views import SignupAPIView, SigninAPIView, CsrfAPIView, ForgetPasswordAPIView, ResetPasswordAPIView, SignoutAPIView
-from server.users.views import UserAPIView,UserListView,UserDeleteView
+from server.users.views import UserAPIView,UserListView,UserDeleteView,UserEditAPIView
 from server.masters.views import RoleAddOrUpdate, RecordListView, ProfileList, ProfileAddOrUpdate, DeleteItemView
 from server.views import home  # Import the new view
 from django.conf import settings
@@ -39,7 +39,7 @@ urlpatterns = [
     path('api/profile/', ProfileList.as_view(), name='profile-list'),
     path('api/updateprofile/', ProfileAddOrUpdate.as_view(), name='updateprofile'), # Manage User Roles API
     path('api/delete-item/<str:item_id>/', DeleteItemView.as_view(), name='delete-item'),
-    
+    path('api/edit-user/', UserEditAPIView.as_view(), name='edit-user'),
 ]
 
 if settings.DEBUG:  # Ensures this only applies during development
