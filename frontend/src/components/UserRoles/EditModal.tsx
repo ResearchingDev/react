@@ -136,7 +136,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                 value={userRole}
                 onChange={(e) => setUserRole(e.target.value)} // Use handleChange here
             />
-            {errors.userRole && <p style={styles.error}>{errors.userRole}</p>}
+            {errors.userRole && <p className='err' style={styles.error}>{errors.userRole}</p>}
         </div>
         <div>
           <label className="mb-3 block text-black dark:text-white">Status:</label>
@@ -152,13 +152,13 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
             </select>
-            {errors.status && <p style={styles.error}>{errors.status}</p>}
+            {errors.status && <p className='err' style={styles.error}>{errors.status}</p>}
         </div>
         <div>
-          <button  type="submit" className="float-right rounded-md bg-primary py-3 text-white hover:bg-opacity-90 xl:px-6">
+          <button  type="submit" className="float-right rounded-md bg-primary px-6 py-2 text-white hover:bg-opacity-90 xl:px-6">
             Save
           </button>
-          <button className="mr-3 float-right rounded-md bg-danger py-3 text-white hover:bg-opacity-90 xl:px-6" type="button" onClick={onClose}>
+          <button className="mr-3 float-right rounded-md bg-gray-400 px-6 py-2 text-white hover:bg-opacity-90 xl:px-6" type="button" onClick={onClose}>
             Cancel
           </button>
         </div>

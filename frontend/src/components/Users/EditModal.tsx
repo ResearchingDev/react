@@ -177,7 +177,7 @@ const EditModal: React.FC<EditModalProps> = ({
           bottom: "auto",
           marginRight: "-50%",
           transform: "translate(-50%, -50%)",
-          width: "600px",
+          width: "90%",
           padding: "20px",
           borderRadius: "8px",
         },
@@ -186,9 +186,9 @@ const EditModal: React.FC<EditModalProps> = ({
         },
       }}
     >
-      <h2 className="mb-6 text-2xl font-bold text-center text-black dark:text-white">
+      <div className="modal-title">
         {IsisAction}
-      </h2>
+      </div>
       <form onSubmit={handleSubmit}>
         {/* Grid Layout with col-4 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -204,7 +204,7 @@ const EditModal: React.FC<EditModalProps> = ({
               onChange={handleChange}
               className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
             />
-            {errors.first_name && <p style={{ color: 'red' }}>{errors.first_name}</p>}
+            {errors.first_name && <p className='err' style={{ color: 'red' }}>{errors.first_name}</p>}
           </div>
 
           {/* Last Name */}
@@ -219,7 +219,7 @@ const EditModal: React.FC<EditModalProps> = ({
               onChange={handleChange}
               className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
             />
-            {errors.last_name && <p style={{ color: 'red' }}>{errors.last_name}</p>}
+            {errors.last_name && <p className='err' style={{ color: 'red' }}>{errors.last_name}</p>}
           </div>
            {/* Password */}
            <div>
@@ -233,7 +233,7 @@ const EditModal: React.FC<EditModalProps> = ({
               onChange={handleChange}
               className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
             />
-            {errors.user_name && <p style={{ color: 'red' }}>{errors.user_name}</p>}
+            {errors.user_name && <p className='err' style={{ color: 'red' }}>{errors.user_name}</p>}
           </div>
 
           {/* Email */}
@@ -248,7 +248,7 @@ const EditModal: React.FC<EditModalProps> = ({
               onChange={handleChange}
               className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
             />
-            {errors.email && <p style={{ color: 'red' }}>{errors.email}</p>}
+            {errors.email && <p className='err' style={{ color: 'red' }}>{errors.email}</p>}
           </div>
 
           {/* Password */}
@@ -263,19 +263,19 @@ const EditModal: React.FC<EditModalProps> = ({
               onChange={handleChange}
               className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
             />
-            {errors.password && <p style={{ color: 'red' }}>{errors.password}</p>}
+            {errors.password && <p className='err' style={{ color: 'red' }}>{errors.password}</p>}
           </div>
           {/* Password */}
           <div>
             <label className="mb-2 block text-sm font-medium text-black dark:text-white">
-              profile Image
+              Profile Image
             </label>
             <input
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
               />
-            {errors.profile_image && <p style={{ color: 'red' }}>{errors.profile_image}</p>}
+            {errors.profile_image && <p className='err' style={{ color: 'red' }}>{errors.profile_image}</p>}
           </div>
           {/* User Role */}
           <div>
@@ -288,10 +288,10 @@ const EditModal: React.FC<EditModalProps> = ({
               onChange={handleChange}
               className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
             >
-              <option value="">select</option>
+              <option value="">Select User Role</option>
               <option value="1">Admin</option>
             </select>
-            {errors.user_role && <p style={{ color: 'red' }}>{errors.user_role}</p>}
+            {errors.user_role && <p className='err' style={{ color: 'red' }}>{errors.user_role}</p>}
           </div>
 
           {/* Status */}
@@ -309,24 +309,25 @@ const EditModal: React.FC<EditModalProps> = ({
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>
-            {errors.status && <p style={{ color: 'red' }}>{errors.status}</p>}
+            {errors.status && <p className='err' style={{ color: 'red' }}>{errors.status}</p>}
           </div>
         </div>
         {/* Buttons */}
         <div className="mt-6 flex justify-end gap-3">
-          <button
-            className="rounded-md bg-primary px-6 py-2 text-white hover:bg-opacity-90"
-            type="submit"
-          >
-            Save
-          </button>
-          <button
+        <button
             className="rounded-md bg-gray-400 px-6 py-2 text-white hover:bg-opacity-90"
             type="button"
             onClick={onClose}
           >
             Cancel
           </button>
+          <button
+            className="rounded-md bg-primary px-6 py-2 text-white hover:bg-opacity-90"
+            type="submit"
+          >
+            Save
+          </button>
+          
         </div>
       </form>
     </Modal>

@@ -130,12 +130,13 @@ const DataTableComponent: React.FC = () => {
     setIsisAction('Add User');
   };
   return (
-    <div>
+    <div className='min-w-full border-collapse border border-gray-200'>
     <DataTable
       title="Users List"
       columns={columns}
       data={data}
       progressPending={loading}
+      className='custome-table'
       pagination
       paginationServer
       paginationTotalRows={totalRows}
@@ -143,7 +144,7 @@ const DataTableComponent: React.FC = () => {
       onChangeRowsPerPage={handlePerRowsChange}
       actions={
               <button
-                  className="add-btn inline-flex rounded-md bg-primary text-white hover:bg-opacity-90"
+                  className="add-btn inline-flex rounded-md bg-success text-white hover:bg-opacity-90"
                   onClick={() => handleAdd(data)}
                   >
                   <FaPlus className="mr-2" />
