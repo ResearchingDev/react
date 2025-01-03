@@ -99,7 +99,13 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
       });
     }
   }, [itemDetails]);
-
+  const styles = {
+      error: {
+        color: 'red',
+        fontSize: '14px',
+        marginBottom: '6px',
+    },
+  }
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} contentLabel="Edit User"
     style={{
