@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime, timedelta  # Import datetime for timestamps
 from server.db import users_collection # Import Mongo wa_users collection
+from server.db import users_role_collection # Import Mongo wa_user_roles collection
 from server.db import login_activity_collection # Import Mongo wa_log_history collection
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
@@ -54,6 +55,26 @@ def get_location(ip):
         return location
     except Exception as e:
         return f"Error: {str(e)}"
+    
+#checkGetUserRoleExists method used to Check Admin User Role Exists - If not insert and get details
+def checkGetUserRoleExists():
+    """ Check Admin User Role Exists - If not insert and get details"""
+    # Check if the role exists
+    existing_userrole = users_role_collection.find_one({"vrole_name": "Admin"})
+    
+    if existing_userrole:
+        # If role exists, return the existing role ID
+        return str(existing_userrole['_id'])
+    else:
+        # Role doesn't exist - Insert new role
+        new_role = {
+            "vrole_name": "Admin",
+            "estatus":"Active",
+            "dcreated_at": datetime.now(),
+        }
+        result = users_role_collection.insert_one(new_role)
+        return str(result.inserted_id)
+      
 #SignupAPIView method used to register user
 class SignupAPIView(APIView):
     # @method_decorator(csrf_protect, name='post')  # Apply CSRF protection
@@ -88,10 +109,10 @@ class SignupAPIView(APIView):
                 else:
                     # Hash the password before saving
                     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
+                    user_role_id = checkGetUserRoleExists()
                     # Create a new user dictionary to store in MongoDB
                     user_data = {
-                        'irole_id':1,
+                        'irole_id':user_role_id,
                         "vfirst_name": first_name,
                         "vuser_name": user_name,
                         "vpassword": hashed_password.decode('utf-8'),
@@ -157,7 +178,10 @@ class SigninAPIView(APIView):
 
                     result_log = login_activity_collection.insert_one(login_entry)
                     log_history_id = str(result_log.inserted_id)
-                    return Response({'message': 'Data matches!', 'user_id': user_id, 'log_history_id': log_history_id}, status=status.HTTP_200_OK)
+                    user_full_name = f'{user_data.get("vfirst_name", "")} {user_data.get("vlast_name", "")}'.strip()
+                    userrole_details = users_role_collection.find_one({"_id": ObjectId(user_data["irole_id"])})
+                    user_role_name = userrole_details.get('vrole_name')
+                    return Response({'message': 'Data matches!', 'user_id': user_id,'log_history_id': log_history_id,'user_full_name':user_full_name,'user_role_name':user_role_name}, status=status.HTTP_200_OK)
                 else:
                      return Response({'message': 'Incorrect password!'}, status=status.HTTP_400_BAD_REQUEST)
             else:

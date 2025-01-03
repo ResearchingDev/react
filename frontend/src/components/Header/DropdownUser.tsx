@@ -10,7 +10,6 @@ const DropdownUser = () => {
     const router = useRouter();
     const handleLogout = async () => {
       const log_history_id = sessionStorage.getItem('log_history_id');
-      console.log(log_history_id)
       await axios.post( `${apiBaseURL}/api/signout/`, { log_history_id }, {
         headers: {
             "Content-Type": "application/json",  // Correct content type
@@ -32,9 +31,9 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            Thomas Anree
+          {sessionStorage.getItem('userName')}
           </span>
-          <span className="block text-xs">UX Designer</span>
+          <span className="block text-xs">{sessionStorage.getItem('userRole')}</span>
         </span>
 
         <span className="h-12 w-12 rounded-full">
@@ -72,7 +71,7 @@ const DropdownUser = () => {
         <div
           className={`absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark`}
         >
-          <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
+          <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-4 dark:border-strokedark">
             <li>
               <Link
                 href="/profile"
@@ -98,7 +97,7 @@ const DropdownUser = () => {
                 My Profile
               </Link>
             </li>
-            <li>
+            <li className="dnone">
               <Link
                 href="#"
                 className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -119,7 +118,7 @@ const DropdownUser = () => {
                 My Contacts
               </Link>
             </li>
-            <li>
+            <li className="dnone">
               <Link
                 href="/settings"
                 className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -143,7 +142,7 @@ const DropdownUser = () => {
                 </svg>
                 Account Settings
               </Link>
-            </li>
+            </li> 
           </ul>
           <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base" onClick={handleLogout}>
             <svg
