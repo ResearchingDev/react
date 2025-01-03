@@ -21,17 +21,21 @@ class RoleAddOrUpdate(APIView):
             if serializer.is_valid():
                 userrole = serializer.validated_data['userRole']
                 status_input = serializer.validated_data['status']
-                
+                data = request.data  # Get the incoming data
+                # Check if '_id' is present (optional)
+                role_id = data.get('_id')  # This will return None if '_id' is not present
                 # Check if the role already exists
-                existing_role = users_role_collection.find_one({"vrole_name": userrole})
-
-                if existing_role:
+                if role_id and role_id!='':
+                    _id = request.data.get('_id')
                     # If the role exists, update it
                     updated_role = users_role_collection.update_one(
-                        {"vrole_name": userrole},
-                        {"$set": 
-                            {"estatus": status_input},
-                            "dupdated_at": datetime.utcnow(),  # Add current timestamp
+                        {"_id": ObjectId(_id)},  # Ensure item_id is converted to ObjectId
+                        {
+                            "$set": {
+                                "vrole_name": userrole,
+                                "estatus": status_input,
+                                "dupdated_at": datetime.utcnow()  # Add current timestamp inside $set
+                            }
                         }
                     )
                     if updated_role.modified_count > 0:
@@ -43,7 +47,9 @@ class RoleAddOrUpdate(APIView):
                     new_role = {
                         "vrole_name": userrole,
                         "estatus": status_input,
+                        "tdeleted_status": 0,
                         "dcreated_at": datetime.utcnow(),  # Add current timestamp
+                        "dupdated_at": "",
                     }
                     result = users_role_collection.insert_one(new_role)
                     return Response(
@@ -70,10 +76,12 @@ class RecordListView(APIView):
         # Fetch data with pagination
         total_records = users_role_collection.count_documents({})
         records = list(
-            users_role_collection.find({}, {"_id": 0})
+            users_role_collection.find({"tdeleted_status": {"$ne": 1}}, {})
                       .skip(skip)
                       .limit(rows_per_page)
         )
+        for record in records:
+            record["_id"] = str(record["_id"])
         return Response({
             "total": total_records,
             "data": records,
@@ -163,9 +171,16 @@ def generate_random_filename(length=8):
 
 class DeleteItemView(APIView):
     def delete(self, request, item_id):
-        object_id = ObjectId(item_id)
-        result = users_role_collection.delete_one({"_id": object_id})
-        if result.deleted_count == 1:
+        updated_role = users_role_collection.update_one(
+            {"_id": ObjectId(item_id)},  # Ensure item_id is converted to ObjectId
+            {
+                "$set": {
+                    "tdeleted_status": 1,
+                    "dupdated_at": datetime.utcnow()  # Add current timestamp inside $set
+                }
+            }
+        )
+        if updated_role.modified_count > 0:
             return Response({"message": "Role deleted successfully."}, status=200)
         else:
             return Response({"error": "Role not found."}, status=404)
