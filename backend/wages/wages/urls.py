@@ -20,6 +20,8 @@ from server.auth.views import SignupAPIView, SigninAPIView, CsrfAPIView, ForgetP
 from server.users.views import UserAPIView,UserListView,UserDeleteView,UserEditAPIView,UserRolesAPIView
 from server.masters.views import RoleAddOrUpdate, RecordListView, ProfileList, ProfileAddOrUpdate, DeleteItemView
 from server.views import home  # Import the new view
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
     path('', home, name='home'),  # Add root URL pattern
     path('admin/', admin.site.urls),
@@ -41,4 +43,7 @@ urlpatterns = [
     path('api/user-roles/', UserRolesAPIView.as_view(), name='user-roles'),
     
 ]
+
+if settings.DEBUG:  # Ensures this only applies during development
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

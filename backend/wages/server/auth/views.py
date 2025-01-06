@@ -2,6 +2,7 @@ import bcrypt
 import jwt
 import secrets
 import requests
+import os
 from bson import ObjectId
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -70,7 +71,9 @@ def checkGetUserRoleExists():
         new_role = {
             "vrole_name": "Admin",
             "estatus":"Active",
+            "tdeleted_status":0,
             "dcreated_at": datetime.now(),
+            "dupdated_at": datetime.now(),
         }
         result = users_role_collection.insert_one(new_role)
         return str(result.inserted_id)
@@ -181,7 +184,17 @@ class SigninAPIView(APIView):
                     user_full_name = f'{user_data.get("vfirst_name", "")} {user_data.get("vlast_name", "")}'.strip()
                     userrole_details = users_role_collection.find_one({"_id": ObjectId(user_data["irole_id"])})
                     user_role_name = userrole_details.get('vrole_name')
-                    return Response({'message': 'Data matches!', 'user_id': user_id,'log_history_id': log_history_id,'user_full_name':user_full_name,'user_role_name':user_role_name}, status=status.HTTP_200_OK)
+                    
+                     # Profile image handling
+                    user_images = user_data.get('vprofile_image')  # /uploads/sfub8axq_6452543ca1cc7_1683117116.png
+                    user_image_path = ""
+                    if user_images:
+                        # Construct the full path for the profile image
+                        image_path = os.path.join(settings.BASE_DIR_MEDIA, user_images.lstrip('/'))
+                        image_path_exists = os.path.exists(image_path)
+                        if(image_path_exists):
+                            user_image_path = user_images
+                    return Response({'message': 'Data matches!', 'user_id': user_id,'log_history_id': log_history_id,'user_full_name':user_full_name,'user_role_name':user_role_name,'user_image_path':user_image_path}, status=status.HTTP_200_OK)
                 else:
                      return Response({'message': 'Incorrect password!'}, status=status.HTTP_400_BAD_REQUEST)
             else:
