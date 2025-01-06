@@ -15,9 +15,9 @@ export const fetchUserProfile = async () => {
   }
 };
 
-export const deleteItem = async (itemId) => {
+export const deleteItem = async (itemId,url) => {
   try {
-    const response = await axios.delete(`${apiBaseURL}/api/delete-item/${itemId}/`);
+    const response = await axios.delete(url);
     return response.data; // Handle success
   } catch (error) {
     console.error(error.response?.data?.error || "An error occurred");

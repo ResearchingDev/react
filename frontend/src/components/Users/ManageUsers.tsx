@@ -5,7 +5,8 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { FaEdit, FaTrashAlt, FaPlus } from 'react-icons/fa'; // For icons
 import EditModal from './EditModal';
-
+import { deleteItem } from '../../api/user';
+import Swal from "sweetalert2";
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const DataTableComponent: React.FC = () => {
   const [data, setData] = useState<any[]>([]); // Adjust `any[]` to your data structure type if known
@@ -62,7 +63,7 @@ const DataTableComponent: React.FC = () => {
       sortable: true,
     },
     {
-      name: <strong>User name</strong>,
+      name: <strong>Username</strong>,
       selector: (row: any) => row.vuser_name,
       sortable: true,
     },
@@ -114,15 +115,26 @@ const DataTableComponent: React.FC = () => {
   };
   
   const handleDelete = async(row: any) => {
-    if (row._id) {
-      const response = await axios.delete(`${apiBaseURL}/api/delete-user/${row._id}/`);
-      if (response.status === 200) {
-        alert(response.data.message || 'User deleted successfully!');
-        fetchData(page, perPage);
-      } else {
-        alert(response.data.error || 'Failed to delete user.');
+      const url = `${apiBaseURL}/api/delete-user/${row._id}/`
+      const confirmed = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      });
+    
+      if (confirmed.isConfirmed) {
+        const response = await deleteItem(row._id,url);
+        if (response) {
+          Swal.fire("Deleted!", "The item has been deleted.", "success");
+          fetchData(page, perPage); // Refresh data after successful deletion
+        } else {
+          Swal.fire("Error!", "Failed to delete the item.", "error");
+        }
       }
-    }
   };
   const handleAdd = (row: any) => {
     setSelectedItem(row);
