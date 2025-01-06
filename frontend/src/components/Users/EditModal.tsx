@@ -47,6 +47,7 @@ const EditModal: React.FC<EditModalProps> = ({
     });
   const [profile_image, setFile] = useState<File | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [roles, setRoles] = useState<{ _id: string; vrole_name: string }[]>([]);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -61,11 +62,20 @@ const EditModal: React.FC<EditModalProps> = ({
           user_name: itemDetails.vuser_name || '',
           email: itemDetails.vemail || '',
           password:'', // Assuming password is available
-          user_role: '',  // Set a default user_role if necessary
+          user_role: itemDetails.irole_id,  // Set a default user_role if necessary
           status: itemDetails.estatus || 'active',
           profile_image: itemDetails.vprofile_image || '',
         });
       }
+      const fetchRoles = async () => {  
+        try {
+          const response = await axios.get(`${apiBaseURL}/api/user-roles/`);
+          setRoles(response.data.data); // Assuming API returns { roles: [{ id, name }] }
+        } catch (error) {
+          console.error("Error fetching user roles:", error);
+        }
+      };
+      fetchRoles();
     }, [itemDetails]);
   const validateForm = (): boolean => {
     let isValid = true;
@@ -369,7 +379,9 @@ const EditModal: React.FC<EditModalProps> = ({
               className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
             >
               <option value="">Select User Role</option>
-              <option value="1">Admin</option>
+              {roles.map((role) => (
+                <option key={role._id} value={role._id}>{role.vrole_name}</option>
+              ))}
             </select>
             {errors.user_role && <p className='err' style={{ color: 'red' }}>{errors.user_role}</p>}
           </div>
