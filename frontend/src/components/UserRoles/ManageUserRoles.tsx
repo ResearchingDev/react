@@ -134,8 +134,10 @@ const DataTableComponent: React.FC = () => {
       value={searchText}
       onChange={handleSearchChange}
       placeholder="Search..."
+      className='dnone'
       style={{ marginBottom: '10px', padding: '5px', width: '200px' }}
     />
+    <div className='main-page min-w-full border-collapse rounded-xl'>
     <DataTable
       title="User Role Lists"
       columns={columns}
@@ -157,7 +159,7 @@ const DataTableComponent: React.FC = () => {
         </button>
       }
     />
-    
+    </div>
     <EditModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

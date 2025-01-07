@@ -300,11 +300,13 @@ const SignUp: React.FC = () => {
           <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <span className="mb-1.5 block font-medium">Start for free</span>
-              <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-                Sign Up to BuiAdmin
-              </h2>
-              {message && <div className="bg-green-100 text-green-700 border border-green-400 px-4 py-2 rounded-md">{message}</div>}
-              {error && <div className="bg-red-100 text-red-700 border border-red-400 px-4 py-2 rounded-md">{error}</div>}
+              <div className="login-header">
+                <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
+                  Sign Up to BuiAdmin
+                </h2>
+                {message && <div className="login-alert bg-green-100 text-green-700 border border-green-400 px-4 py-2 rounded-md">{message}</div>}
+                {error && <div className="login-alert bg-red-100 text-red-700 border border-red-400 px-4 py-1 rounded-md">{error}</div>}
+              </div>
               <form onSubmit={handleRegSubmit}>
                 <div className="mb-4">
                   <Label htmlFor="first_name" text="First Name" />

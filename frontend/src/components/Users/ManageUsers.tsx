@@ -142,7 +142,7 @@ const DataTableComponent: React.FC = () => {
     setIsisAction('Add User');
   };
   return (
-    <div className='min-w-full border-collapse border border-gray-200'>
+    <div className='main-page min-w-full border-collapse rounded-xl'>
     <DataTable
       title="Users List"
       columns={columns}
