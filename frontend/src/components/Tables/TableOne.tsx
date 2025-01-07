@@ -36,7 +36,7 @@ const DataTable  = () => {
   });
 
   return (
-    <table {...getTableProps()} className='min-w-full border-collapse border border-gray-200' style={{ border: 'solid 1px black' }}>
+    <table {...getTableProps()} className='min-w-full border-collapse' style={{ border: 'solid 1px black' }}>
       <thead>
         {headerGroups.map(headerGroup => (
           <tr className="bg-gray-100" {...headerGroup.getHeaderGroupProps()}>

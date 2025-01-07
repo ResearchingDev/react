@@ -299,3 +299,27 @@ input[type="search"]::-webkit-search-cancel-button {
 .dnone {
     display: none;
 }
+.login-header {
+    position: relative;
+}
+.login-alert {
+    position: absolute;
+    bottom: -35px;
+    width: 100%;
+}
+.main-page .rdt_TableHeader, .main-page .rdt_Pagination {
+    background-color: transparent;
+    padding: 0;
+    border: 0;
+}
+.main-page .bpcekY {
+    border: 2px solid #fff;
+    border-radius: 6px;
+}
+.main-page .rdt_TableHeader {
+    margin-bottom: 10px;
+    min-height: auto;
+}
+.main-page .rdt_TableRow {
+    min-height: 46px;
+}

@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime  # Import datetime for timestamps
 from server.db import users_collection # Import Mongo wa_users collection
+from server.db import users_role_collection # Import Mongo wa_users collection
 from django.conf import settings
 from django.core.files.storage import default_storage
 import random
@@ -173,3 +174,15 @@ class UserEditAPIView(APIView):
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response({"error": "Invalid data!"}, status=status.HTTP_400_BAD_REQUEST)
+    
+class UserRolesAPIView(APIView):
+    def get(self, request):
+        # Fetch data with pagination
+        records = list(
+            users_role_collection.find({"tdeleted_status": {"$ne": 1}}, {})
+        )
+        for record in records:
+            record["_id"] = str(record["_id"])
+        return Response({
+            "data": records,
+        })

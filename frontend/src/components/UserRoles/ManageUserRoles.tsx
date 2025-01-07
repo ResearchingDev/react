@@ -15,10 +15,11 @@ const DataTableComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [perPage, setPerPage] = useState<number>(10);
+  const [searchText, setSearchText] = useState('');
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAction, setIsisAction] = useState<string>('Add User');
+  const [isAction, setIsisAction] = useState<string>('Add User Role');
   const fetchData = async (page: number, perPage: number) => {
     setLoading(true);
     try {
@@ -93,10 +94,11 @@ const DataTableComponent: React.FC = () => {
   const handleEdit = (row: any) => {
     setSelectedItem(row);
     setIsModalOpen(true);
-    setIsisAction('Edit User');
+    setIsisAction('Edit User Role');
   };
   
   const handleDelete = async (itemId: string) => {
+    const url = `${apiBaseURL}/api/delete-item/${itemId}/`
     const confirmed = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -108,7 +110,7 @@ const DataTableComponent: React.FC = () => {
     });
   
     if (confirmed.isConfirmed) {
-      const response = await deleteItem(itemId);
+      const response = await deleteItem(itemId,url);
       if (response) {
         Swal.fire("Deleted!", "The item has been deleted.", "success");
         fetchData(page, perPage); // Refresh data after successful deletion
@@ -120,10 +122,22 @@ const DataTableComponent: React.FC = () => {
   const handleAdd = (row: any) => {
     setSelectedItem(row);
     setIsModalOpen(true);
-    setIsisAction('Add User');
+    setIsisAction('Add User Role');
+  };
+  const handleSearchChange = () => {
+    
   };
   return (
     <div>
+    <input
+      type="text"
+      value={searchText}
+      onChange={handleSearchChange}
+      placeholder="Search..."
+      className='dnone'
+      style={{ marginBottom: '10px', padding: '5px', width: '200px' }}
+    />
+    <div className='main-page min-w-full border-collapse rounded-xl'>
     <DataTable
       title="User Role Lists"
       columns={columns}
@@ -145,7 +159,7 @@ const DataTableComponent: React.FC = () => {
         </button>
       }
     />
-    
+    </div>
     <EditModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
