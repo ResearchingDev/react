@@ -55,7 +55,7 @@ const Forgot: React.FC = () => {
     // Validate Email
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'Email address is required';
       isValid = false;
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
@@ -257,13 +257,13 @@ const Forgot: React.FC = () => {
             {error && <div className="bg-red-100 text-red-700 border border-red-400 px-4 py-2 rounded-md">{error}</div>}
             <form onSubmit={handleForSubmit}>
               <div className="mb-4">
-                <Label htmlFor="email" text="Email" />
+                <Label htmlFor="email" text="Email Address" />
                 <div className="relative">
                   <InputField
                     type="text"
                     name="email"
                     value={formData.email}
-                    placeholder="Enter your email"
+                    placeholder="Enter your email address"
                     onChange={handleChange}
                   />
                   <span className="absolute right-4 top-4">

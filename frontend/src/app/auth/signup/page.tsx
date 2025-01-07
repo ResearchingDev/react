@@ -342,7 +342,7 @@ const SignUp: React.FC = () => {
                 </div>
 
                 <div className="mb-4">
-                  <Label htmlFor="user_name" text="User Name" />
+                  <Label htmlFor="user_name" text="Username" />
                   <div className="relative">
                     <InputField
                       type="text" 
@@ -378,13 +378,13 @@ const SignUp: React.FC = () => {
                 </div>
 
                 <div className="mb-4">
-                  <Label htmlFor="email" text="Email" />
+                  <Label htmlFor="email" text="Email Address" />
                   <div className="relative">
                     <InputField
                       type="text"
                       name="email" 
                       value={formData.email}
-                      placeholder="Enter your email"
+                      placeholder="Enter your email address"
                       onChange={handleChange}
                     />
                     <span className="absolute right-4 top-4">
