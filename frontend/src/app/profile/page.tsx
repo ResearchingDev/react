@@ -45,7 +45,6 @@ const Profile = () => {
         // Handle phone number: set an empty string if it's null or undefined
         const number = (data.vphone_number && data.vphone_number !== 'null') ? data.vphone_number : "";
         if(data.profile_picture) setThumbnailUrl(`${apiBaseURL}/${data.profile_picture}`)
-        
         // Ensure the form data is set correctly, including phone number
         setFormData({
           vuser_name: data.vuser_name || "",
@@ -86,9 +85,8 @@ const Profile = () => {
       newErrors.phoneNumber = "Phone number must be 10 digits";
       valid = false;
     }
-
     if (formData.file){
-      valid = true;
+       if(valid) valid = true;
     }else{
       if (!file) {
         newErrors.file = "Profile image is required";
@@ -148,7 +146,7 @@ const Profile = () => {
         if (response.ok) {
           const result = await response.json();
           setMessage(result.message);
-          sessionStorage.setItem('userName', formData.vuser_name);
+          sessionStorage.setItem('userName', formData.vfirst_name);
           if(result.user_image_path) sessionStorage.setItem('userImage', result.user_image_path);
           setTimeout(() => {
             setMessage('');
@@ -370,14 +368,13 @@ const Profile = () => {
                         {errors.file && <p className='err' style={styles.error}>{errors.file}</p>}
                       </div>
                     </div>
-                    <div className="w-full sm:w-1/2">
-                      <label
-                        className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="Username"
-                      >
-                        Uploaded Image
-                      </label>
-                      {thumbnailUrl && (
+                    {thumbnailUrl && ( <div className="w-full sm:w-1/2">
+                        <label
+                          className="mb-3 block text-sm font-medium text-black dark:text-white"
+                          htmlFor="Username"
+                        >
+                          Uploaded Image
+                        </label>
                         <div>
                           <img
                             alt="Uploaded"
@@ -386,17 +383,10 @@ const Profile = () => {
                             height="200"
                             src={thumbnailUrl}
                           />
-                      </div>
-                    )}
-                    </div>
-                  </div>
+                        </div>
+                    </div> )}
+                  </div> 
                   <div className="flex justify-end gap-4.5">
-                    <button
-                      className="flex justify-center rounded border border-stroke px-6 py-2 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
-                      type="button"
-                    >
-                      Cancel
-                    </button>
                     <button
                       className="flex justify-center rounded bg-primary px-6 py-2 font-medium text-gray hover:bg-opacity-90"
                       type="submit" disabled={isLoading}
