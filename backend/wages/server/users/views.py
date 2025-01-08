@@ -93,7 +93,7 @@ class UserListView(APIView):
             query_filter = {"tdeleted_status": 0}
             # Fetch data from MongoDB
             users = users_collection.find(query_filter).skip(skip).limit(per_page)
-            total = users_collection.count_documents({})
+            total = users_collection.count_documents(query_filter)
 
             # Convert the cursor to a list and ensure _id is a string
             user_list = []

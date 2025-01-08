@@ -74,7 +74,7 @@ class RecordListView(APIView):
         rows_per_page = int(request.GET.get("per_page", 10))
         skip = (page - 1) * rows_per_page
         # Fetch data with pagination
-        total_records = users_role_collection.count_documents({})
+        total_records = users_role_collection.count_documents({"tdeleted_status": "0"})
         records = list(
             users_role_collection.find({"tdeleted_status": {"$ne": 1}}, {"vrole_name":1,"estatus":1})
                       .skip(skip)
@@ -173,16 +173,20 @@ def generate_random_filename(length=8):
 
 class DeleteItemView(APIView):
     def delete(self, request, item_id):
-        updated_role = users_role_collection.update_one(
-            {"_id": ObjectId(item_id)},  # Ensure item_id is converted to ObjectId
-            {
-                "$set": {
-                    "tdeleted_status": 1,
-                    "dupdated_at": datetime.utcnow()  # Add current timestamp inside $set
-                }
-            }
-        )
-        if updated_role.modified_count > 0:
-            return Response({"message": "Role deleted successfully."}, status=200)
+        users_with_role = list(users_collection.find({'irole_id': item_id}))
+        if len(users_with_role) > 0:
+            return Response({"message": "Role is already assigned to user"}, status=204)
         else:
-            return Response({"error": "Role not found."}, status=404)
+            updated_role = users_role_collection.update_one(
+                {"_id": ObjectId(item_id)},  # Ensure item_id is converted to ObjectId
+                {
+                    "$set": {
+                        "tdeleted_status": 1,
+                        "dupdated_at": datetime.utcnow()  # Add current timestamp inside $set
+                    }
+                }
+            )
+            if updated_role.modified_count > 0:
+                return Response({"message": "Role deleted successfully."}, status=200)
+            else:
+                return Response({"error": "Role not found."}, status=404)
