@@ -7,6 +7,7 @@ import Image from "next/image";
 import axios from 'axios';
 import { useRouter } from 'next/navigation'
 import { getCsrfToken } from '../csrf'
+import Loader from '@/components/Loader';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const Forgot: React.FC = () => {
@@ -19,7 +20,7 @@ const Forgot: React.FC = () => {
 
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-
+  const [isLoading, setIsLoading] = useState(false);
   /** useRouter - create new routes */
   const router = useRouter()
 
@@ -69,6 +70,7 @@ const Forgot: React.FC = () => {
   const handleForSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       if (validateForm()) {
+        setIsLoading(true);
         await axios.post( `${apiBaseURL}/api/forgot-password/`, formData, {
             headers: {
                 "Content-Type": "application/json",  // Correct content type
@@ -76,11 +78,11 @@ const Forgot: React.FC = () => {
             }
         })
         .then(response => {
-            setMessage(response.data.message);
-            setFormData({email: ''});
             // Redirect to another page after successful sign-in
             setTimeout(() => {
+              setFormData({email: ''});
               router.push(`/auth/reset/${response.data.token}`);
+              setIsLoading(false);
             }, 2000); // Delay the redirection to show the success message for 2 seconds
         })
         .catch(err => {
@@ -91,6 +93,7 @@ const Forgot: React.FC = () => {
           } else {
             setError('An unexpected error occurred.');
           }
+        setIsLoading(false);
         });
       } else {
         console.log('Form has errors');
@@ -291,7 +294,7 @@ const Forgot: React.FC = () => {
                   type="submit"
                   value="Send"
                   className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
-                />
+                  disabled={isLoading}/>
               </div>
 
               <div className="mt-6 text-center">
@@ -303,6 +306,7 @@ const Forgot: React.FC = () => {
                 </p>
               </div>
             </form>
+            {isLoading && <Loader />} 
           </div>
         </div>
       </div>

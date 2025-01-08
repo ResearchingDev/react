@@ -5,24 +5,22 @@ import Image from "next/image";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { useRouter } from 'next/navigation'
 import { fetchUserProfile } from '../../api/user';
-import { toast } from "react-toastify";
+import Loader from '@/components/Loader';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const Profile = () => {
   const router = useRouter();
   const [profile, setProfile] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const id = sessionStorage.getItem('userId') || '';
-
   const [file, setFile] = useState<File | null>(null);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [phoneNumber, setphoneNumber] = useState('');
-  const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
+ const [isLoading, setIsLoading] = useState(false);
+ const [message, setMessage] = useState("");
   const imageUrl_M = "http://localhost:8000/uploads/durz1r3l_Manikandan_Software_Developer.png";
   //Set FormData
   const [formData, setFormData] = useState({
@@ -67,7 +65,7 @@ const Profile = () => {
       } catch (error) {
         console.error('Error:', error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -91,7 +89,6 @@ const Profile = () => {
       newErrors.email = "Invalid email format";
       valid = false;
     }
-    console.log(formData)
     if (!formData.phoneNumber?.trim()) {
       newErrors.phoneNumber = "Phone number is required";
       valid = false;
@@ -134,9 +131,8 @@ const Profile = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      setUploading(true);
+      setIsLoading(true);
       setError(null);
-
       const formData = new FormData();
       formData.append('id', id);
       formData.append('username', username);
@@ -152,18 +148,20 @@ const Profile = () => {
           method: 'POST',
           body: formData,
         });
-
         if (response.ok) {
           const result = await response.json();
+          setMessage(result.message);
           setImageUrl(result.url);
-          toast.success(result.message);
+          setTimeout(() => {
+            setMessage('');
+          }, 1000);
         } else {
           throw new Error('Failed to upload image');
         }
+        setIsLoading(false);
       } catch (error) {
         setError('Error uploading image: ' + error);
-      } finally {
-        setUploading(false);
+        setIsLoading(false);
       }
     }
   };
@@ -179,6 +177,7 @@ const Profile = () => {
       <div className="mx-auto max-w-242.5">
         <Breadcrumb pageName="Profile" />
         <div className="grid grid-cols-5 gap-8">
+        {message && <div className="bg-green-100 text-green-700 border border-green-400 px-4 py-2 rounded-md">{message}</div>}
           <div className="col-span-5">
             <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
               <div className="p-7">
@@ -411,12 +410,13 @@ const Profile = () => {
                     </button>
                     <button
                       className="flex justify-center rounded bg-primary px-6 py-2 font-medium text-gray hover:bg-opacity-90"
-                      type="submit"
+                      type="submit" disabled={isLoading}
                     >
                       Save
                     </button>
                   </div>
                 </form>
+                {isLoading && <Loader />} 
               </div>
             </div>
           </div>
