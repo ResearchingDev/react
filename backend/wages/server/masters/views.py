@@ -160,11 +160,13 @@ class ProfileAddOrUpdate(APIView):
 
         # Update in MongoDB
         result = users_collection.update_one({'_id': object_id}, {'$set': update_data})
-
+        user_image_path = ""
+        if file and update_data['vprofile_image']:
+            user_image_path = update_data['vprofile_image']
         if result.matched_count == 0:
             return Response({'error': 'User not found'}, status=404)
 
-        return Response({'message': 'User updated successfully'}, status=200)
+        return Response({'message': 'Profile Updated Successfully','user_image_path':user_image_path}, status=200)
 
 def generate_random_filename(length=8):
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
