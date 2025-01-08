@@ -358,16 +358,7 @@ const EditModal: React.FC<EditModalProps> = ({
                   >
                     Profile
                   </label>
-                  <div className="rounded-full">
-                  {thumbnailUrl && ( <Image
-                      src={thumbnailUrl}
-                      width={55}
-                      height={55}
-                      className="rounded-full h-10 w-10 border-2 border-indigo-500/50 shadow-lg shadow-indigo-500/40"
-                      alt="User"
-                    />  )}
-                  </div>
-                  {formData && formData.profile_image.length > 0 && formData.profile_image && (
+                  {thumbnailUrl && (
                     <div>
                       <img
                         alt="Uploaded"
@@ -375,7 +366,7 @@ const EditModal: React.FC<EditModalProps> = ({
                         width="200"
                         height="200"
                         className="rounded-full h-10 w-10 border-2 border-indigo-500/50 shadow-lg shadow-indigo-500/40"
-                        src={`${apiBaseURL}/${formData.profile_image}`}
+                        src={thumbnailUrl}
                       />
                     </div>
                   )}

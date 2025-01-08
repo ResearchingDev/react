@@ -179,7 +179,7 @@ class UserRolesAPIView(APIView):
     def get(self, request):
         # Fetch data with pagination
         records = list(
-            users_role_collection.find({"tdeleted_status": {"$ne": 1}}, {})
+            users_role_collection.find({"tdeleted_status": {"$ne": 1}})
         )
         for record in records:
             record["_id"] = str(record["_id"])

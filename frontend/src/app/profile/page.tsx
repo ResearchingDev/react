@@ -9,19 +9,12 @@ import Loader from '@/components/Loader';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const Profile = () => {
   const router = useRouter();
-  const [profile, setProfile] = useState<any[]>([]);
   const id = sessionStorage.getItem('userId') || '';
   const [file, setFile] = useState<File | null>(null);
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
  const [isLoading, setIsLoading] = useState(false);
  const [message, setMessage] = useState("");
-  const imageUrl_M = "http://localhost:8000/uploads/durz1r3l_Manikandan_Software_Developer.png";
   //Set FormData
   const [formData, setFormData] = useState({
     vuser_name: "",
@@ -49,13 +42,9 @@ const Profile = () => {
     const getUserProfile = async () => {
       try {
         const data = await fetchUserProfile();
-        setProfile([data]); // Overwrite with new data
-        setUsername(data.vuser_name);
-        setFirstName(data.vfirst_name);
         // Handle phone number: set an empty string if it's null or undefined
         const number = (data.vphone_number && data.vphone_number !== 'null') ? data.vphone_number : "";
-        setPhoneNumber(number);
-        setEmail(data.vemail);
+        if(data.profile_picture) setThumbnailUrl(`${apiBaseURL}/${data.profile_picture}`)
         
         // Ensure the form data is set correctly, including phone number
         setFormData({
@@ -98,7 +87,7 @@ const Profile = () => {
       valid = false;
     }
 
-    if (profile && profile.length > 0 && profile[0].profile_picture){
+    if (formData.file){
       valid = true;
     }else{
       if (!file) {
@@ -159,7 +148,8 @@ const Profile = () => {
         if (response.ok) {
           const result = await response.json();
           setMessage(result.message);
-          setImageUrl(result.url);
+          sessionStorage.setItem('userName', formData.vuser_name);
+          if(result.user_image_path) sessionStorage.setItem('userImage', result.user_image_path);
           setTimeout(() => {
             setMessage('');
           }, 1000);
@@ -387,22 +377,14 @@ const Profile = () => {
                       >
                         Uploaded Image
                       </label>
-                      <div className="rounded-full">
-                      {thumbnailUrl && ( <Image
-                          src={thumbnailUrl}
-                          width={55}
-                          height={55}
-                          alt="User"
-                        />  )}
-                      </div>
-                      {profile && profile.length > 0 && profile[0].profile_picture && (
+                      {thumbnailUrl && (
                         <div>
                           <img
                             alt="Uploaded"
                             loading="lazy"
                             width="200"
                             height="200"
-                            src={`${apiBaseURL}/${profile[0].profile_picture}`}
+                            src={thumbnailUrl}
                           />
                       </div>
                     )}
