@@ -44,15 +44,14 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'wages.urls'
@@ -141,13 +140,18 @@ CORS_ALLOW_METHODS = [
     'DELETE',
     'OPTIONS',
 ]
-
-CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SAMESITE = 'None'  # For cross-origin requests
-CSRF_COOKIE_SECURE = True  # Set to True if using HTTPS
-CSRF_COOKIE_NAME = "csrftoken"  # Name of the cookie where CSRF token is stored
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',  # Add the origin of your frontend
+    # You can also add more origins if needed:
+    # 'http://your-frontend-domain.com',
+]
+CSRF_COOKIE_NAME = 'csrftoken'  # The name of the CSRF cookie (default is 'csrftoken')
+CSRF_COOKIE_HTTPONLY = False  # Ensure the cookie is accessible from JavaScript (defaults to False)
+CSRF_COOKIE_SAMESITE = 'None'  # Allow cross-site cookies
+CSRF_COOKIE_SECURE = False  # Set to True if you're using HTTPS
+CORS_ALLOW_CREDENTIALS = True
 CSRF_HEADER_NAME = "X-CSRFToken"  # The header name for CSRF token in requests
-CSRF_USE_SESSIONS = True
+# CSRF_USE_SESSIONS = True
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

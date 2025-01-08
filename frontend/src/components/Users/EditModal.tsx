@@ -4,6 +4,7 @@ import axios from 'axios';
 import Modal from "react-modal";
 import { useRouter } from 'next/navigation'
 import Image from "next/image";
+import Loader from '@/components/Loader';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 interface EditModalProps {
   isOpen: boolean;
@@ -48,6 +49,7 @@ const EditModal: React.FC<EditModalProps> = ({
   const [profile_image, setFile] = useState<File | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [roles, setRoles] = useState<{ _id: string; vrole_name: string }[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -115,9 +117,21 @@ const EditModal: React.FC<EditModalProps> = ({
       } else if (formData.password.length < 6) {
         newErrors.password = 'Password must be at least 6 characters';
         isValid = false;
+      } else if (!/[A-Z]/.test(formData.password)) {
+        newErrors.password = 'Password must contain at least one uppercase letter';
+        isValid = false;
+      }  else if (!/[a-z]/.test(formData.password)) {
+        newErrors.password = 'Password must contain at least one lowercase letter';
+        isValid = false;
+      } else if (!/[0-9]/.test(formData.password)) {
+        newErrors.password = 'Password must contain at least one number';
+        isValid = false;
+      } else if (!/[@$!%*?&]/.test(formData.password)) {
+        newErrors.password = 'Password must contain at least one special character';
+        isValid = false;
       }
     }
-    if (!formData.user_role.trim()) {
+    if (!formData.user_role || !formData.user_role.trim()) {
       newErrors.user_role = 'This field is required';
       isValid = false;
     }
@@ -140,6 +154,7 @@ const EditModal: React.FC<EditModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
+      setIsLoading(true);
       const formDataToSubmit = new FormData();
       formDataToSubmit.append('first_name', formData.first_name);
       formDataToSubmit.append('last_name', formData.last_name);
@@ -164,6 +179,8 @@ const EditModal: React.FC<EditModalProps> = ({
           }
       })
       .then(response => {
+        // Redirect to another page after successful sign-in
+          setTimeout(() => {
           setMessage(response.data.message);
           setFormData({
             first_name: "",
@@ -175,14 +192,14 @@ const EditModal: React.FC<EditModalProps> = ({
             status: "",
             profile_image:"",
           });
-        // Redirect to another page after successful sign-in
-          setTimeout(() => {
             router.push('/users/manage-users');
+            setIsLoading(false);
           }, 2000); // Delay the redirection to show the success message for 2 seconds
       })
         fetchData(page, perPage);
         onClose();
       } catch (error) {
+        setIsLoading(false);
       }
     } else {
       console.log('Form has errors');
@@ -427,7 +444,7 @@ const EditModal: React.FC<EditModalProps> = ({
             </button>
             <button
               className="rounded-md bg-primary px-6 py-2 text-white hover:bg-opacity-90"
-              type="submit"
+              type="submit" disabled={isLoading}
             >
               Save
             </button>
@@ -435,6 +452,7 @@ const EditModal: React.FC<EditModalProps> = ({
           </div>
         </div>
       </form>
+      {isLoading && <Loader />} 
     </Modal>
   );
 };
