@@ -25,6 +25,7 @@ class UserAPIView(APIView):
         profile_image = request.FILES.get("profile_image")
         user_role = request.data.get("user_role")
         user_status = request.data.get("status")
+        phone_number = request.data.get("phone_number")
         if first_name and user_name and email and password:
             try:
                 #check username or email exists
@@ -48,7 +49,8 @@ class UserAPIView(APIView):
                     # Hash the password before saving
                 else:
                  hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-                   # If a new file is uploaded, save and update the path
+                # If a new file is uploaded, save and update the path
+                profile_picture = ""
                 if profile_image:
                     original_file_name = profile_image.name
                     extension = original_file_name.split('.')[-1]
@@ -64,6 +66,7 @@ class UserAPIView(APIView):
                     "vuser_name": user_name,
                     "vpassword": hashed_password.decode('utf-8'),
                     "vemail": email,
+                    "vphone_number": phone_number,
                     "vprofile_image": profile_picture,
                     "estatus":user_status,
                     "tdeleted_status": 0,
@@ -134,6 +137,7 @@ class UserEditAPIView(APIView):
         profile_image = request.FILES.get("profile_image")
         user_role = request.data.get("user_role")
         user_status = request.data.get("status")
+        phone_number = request.data.get("phone_number")
         if first_name and user_name and email:
             try:
                 existing_user = users_collection.find_one({"vuser_name": user_name})
@@ -154,6 +158,7 @@ class UserEditAPIView(APIView):
                     "vlast_name": last_name,
                     "vuser_name": user_name,
                     "vpassword": hashed_password,
+                    "vphone_number": phone_number,
                     "vemail": email,
                     "estatus":user_status,
                     "tdeleted_status": 0,

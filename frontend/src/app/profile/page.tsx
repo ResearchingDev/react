@@ -88,13 +88,10 @@ const Profile = () => {
     if (formData.file){
        if(valid) valid = true;
     }else{
-      if (!file) {
-        newErrors.file = "Profile image is required";
-        valid = false;
-      } else if (!["image/jpeg", "image/png"].includes(file.type)) {
+      if (file && !["image/jpeg", "image/png"].includes(file.type)) {
         newErrors.file = "Only JPEG or PNG images are allowed";
         valid = false;
-      } else if (file.size > 2 * 1024 * 1024) {
+      } else if (file && file.size > 2 * 1024 * 1024) {
         newErrors.file = "Image size must be less than 2MB";
         valid = false;
       }
@@ -264,7 +261,7 @@ const Profile = () => {
                         <InputField
                           type="email"
                           name="vemail" 
-                          value={formData.phoneNumber}
+                          value={formData.vemail}
                           placeholder="Enter email address"
                           onChange={handleChange}
                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"                       

@@ -11,7 +11,7 @@ interface EditModalProps {
   isOpen: boolean;
   IsisAction: string;
   onClose: () => void;
-  itemDetails: { estatus: string; vfirst_name: string; vlast_name: string; vpassword: string; vprofile_image: string; vuser_name: string; vemail: string;  irole_id: string; } | null; // Details of the selected user or null
+  itemDetails: { estatus: string; vfirst_name: string; vlast_name: string; vpassword: string; vphone_number: number; vprofile_image: string; vuser_name: string; vemail: string;  irole_id: string; } | null; // Details of the selected user or null
   page: number;
   perPage: number;
   fetchData: (page: number, perPage: number) => Promise<void>; 
@@ -33,6 +33,7 @@ const EditModal: React.FC<EditModalProps> = ({
     user_name: "",
     email: "",
     password: "",
+    phone_number: "",
     user_role: "",
     status: "",
     profile_image: "",
@@ -43,6 +44,7 @@ const EditModal: React.FC<EditModalProps> = ({
     user_name: "",
     email: "",
     password: "",
+    phone_number: "",
     profile_image: "",
     user_role: "",
     status: "",
@@ -72,6 +74,7 @@ const EditModal: React.FC<EditModalProps> = ({
         user_name: "",
         email: "",
         password: "",
+        phone_number: "",
         profile_image: "",
         user_role: "",
         status: "",
@@ -86,6 +89,7 @@ const EditModal: React.FC<EditModalProps> = ({
           user_name: itemDetails.vuser_name || '',
           email: itemDetails.vemail || '',
           password:'', // Assuming password is available
+          phone_number: itemDetails.vphone_number || '',
           user_role: itemDetails.irole_id,  // Set a default user_role if necessary
           status: itemDetails.estatus || 'active',
           profile_image: itemDetails.vprofile_image || '',
@@ -108,7 +112,7 @@ const EditModal: React.FC<EditModalProps> = ({
     }, [itemDetails]);
   const validateForm = (): boolean => {
     let isValid = true;
-    const newErrors = { first_name: '', user_name: '', email: '', password: '', last_name: '', profile_image:'', user_role:'', status:'' };
+    const newErrors = { first_name: '', user_name: '', email: '', password: '', phone_number: '', last_name: '', profile_image:'', user_role:'', status:'' };
     // Validate First Name
     if (!formData.first_name.trim()) {
       newErrors.first_name = 'This field is required';
@@ -156,6 +160,10 @@ const EditModal: React.FC<EditModalProps> = ({
         isValid = false;
       }
     }
+    if ((formData.phone_number) && !/^\d{10}$/.test(formData.phone_number)) {
+      newErrors.phone_number = "Phone number must be 10 digits";
+      isValid = false;
+    }
     if (!formData.user_role || !formData.user_role.trim()) {
       newErrors.user_role = 'This field is required';
       isValid = false;
@@ -186,6 +194,7 @@ const EditModal: React.FC<EditModalProps> = ({
       formDataToSubmit.append('user_name', formData.user_name);
       formDataToSubmit.append('email', formData.email);
       formDataToSubmit.append('password', formData.password);
+      formDataToSubmit.append('phone_number', formData.phone_number);
       formDataToSubmit.append('user_role', formData.user_role);
       formDataToSubmit.append('status', formData.status);
       if (profile_image) {
@@ -214,6 +223,7 @@ const EditModal: React.FC<EditModalProps> = ({
               user_name: "",
               email: "",
               password: "",
+              phone_number: "",
               user_role: "",
               status: "",
               profile_image:"",
@@ -333,6 +343,20 @@ const EditModal: React.FC<EditModalProps> = ({
                   </div>
                   {/* Password */}
                   
+                  {/* Phone Number */}
+                  <div>
+                    <Label htmlFor="Phone Number" text="Phone Number"/>
+                    <InputField
+                      type="text"
+                      name="phone_number" 
+                      value={formData.phone_number}
+                      placeholder="Enter phone number"
+                      onChange={handleChange}
+                      className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                    />
+                    {errors.phone_number && <p className='err' style={{ color: 'red' }}>{errors.phone_number}</p>}
+                  </div>
+                  {/* Phone Number */}
                   {/* User Role */}
                   <div>
                     <Label htmlFor="User Role" text="User Role" required/>
@@ -349,7 +373,7 @@ const EditModal: React.FC<EditModalProps> = ({
 
                   {/* Status */}
                   <div>
-                    <Label htmlFor="Status" text="Status" required/>
+                    <Label htmlFor="Status" text="Status"/>
                     <select
                       name="status"
                       value={formData.status}
