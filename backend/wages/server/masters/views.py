@@ -76,7 +76,7 @@ class RecordListView(APIView):
         # Fetch data with pagination
         total_records = users_role_collection.count_documents({})
         records = list(
-            users_role_collection.find({"tdeleted_status": {"$ne": 1}}, {})
+            users_role_collection.find({"tdeleted_status": {"$ne": 1}}, {"vrole_name":1,"estatus":1})
                       .skip(skip)
                       .limit(rows_per_page)
         )
