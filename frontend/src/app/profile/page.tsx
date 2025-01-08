@@ -26,9 +26,9 @@ const Profile = () => {
   const imageUrl_M = "http://localhost:8000/uploads/durz1r3l_Manikandan_Software_Developer.png";
   //Set FormData
   const [formData, setFormData] = useState({
-    username: "",
-    firstName: "",
-    email: "",
+    vuser_name: "",
+    vfirst_name: "",
+    vemail: "",
     phoneNumber: "",
     file: "",
   });
@@ -58,11 +58,11 @@ const Profile = () => {
         setphoneNumber(data.vphone_number);
         setEmail(data.vemail);
         setFormData({
-          username: data.vuser_name || '',
-          firstName: data.vfirst_name || '',
-          email: data.vemail, // Default to 'inactive'
-          phoneNumber: data.vphone_number,
-          file: data.profile_picture,
+          vuser_name: data.vuser_name || "",
+          vfirst_name: data.vfirst_name || "",
+          vemail: data.vemail  || "",
+          phoneNumber: data.vphone_number || "",
+          file: data.profile_picture || "",
         });
       } catch (error) {
         console.error('Error:', error);
@@ -79,19 +79,18 @@ const Profile = () => {
     let valid = true;
     const newErrors = { username: "", firstName: "", email: "", phoneNumber: "", file: ""}
 
-    if (!formData.firstName.trim()) {
+    if (!formData.vfirst_name.trim()) {
       newErrors.firstName = "First name is required";
       valid = false;
     }
 
-    if (!formData.email.trim()) {
+    if (!formData.vemail.trim()) {
       newErrors.email = "Email is required";
       valid = false;
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/\S+@\S+\.\S+/.test(formData.vemail)) {
       newErrors.email = "Invalid email format";
       valid = false;
     }
-    console.log(formData)
     if (!formData.phoneNumber?.trim()) {
       newErrors.phoneNumber = "Phone number is required";
       valid = false;
@@ -100,17 +99,20 @@ const Profile = () => {
       valid = false;
     }
 
-    if (!file) {
-      newErrors.file = "Profile image is required";
-      valid = false;
-    } else if (!["image/jpeg", "image/png"].includes(file.type)) {
-      newErrors.file = "Only JPEG or PNG images are allowed";
-      valid = false;
-    } else if (file.size > 2 * 1024 * 1024) {
-      newErrors.file = "Image size must be less than 2MB";
-      valid = false;
+    if (profile && profile.length > 0 && profile[0].profile_picture){
+      valid = true;
+    }else{
+      if (!file) {
+        newErrors.file = "Profile image is required";
+        valid = false;
+      } else if (!["image/jpeg", "image/png"].includes(file.type)) {
+        newErrors.file = "Only JPEG or PNG images are allowed";
+        valid = false;
+      } else if (file.size > 2 * 1024 * 1024) {
+        newErrors.file = "Image size must be less than 2MB";
+        valid = false;
+      }
     }
-
     setErrors(newErrors);
     return valid;
   };
@@ -118,7 +120,11 @@ const Profile = () => {
   /** handleChange method used to push form data into required obj */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    console.log(`Updating field: ${name}, New value: ${value}`);
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
   //File Onchange action
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,20 +143,21 @@ const Profile = () => {
       setUploading(true);
       setError(null);
 
-      const formData = new FormData();
-      formData.append('id', id);
-      formData.append('username', username);
-      formData.append('email', email);
-      formData.append('first_name', firstName);
-      formData.append('phone_number', phoneNumber);
+      console.log(formData.vfirst_name)
+      const payload = new FormData();
+      payload.append('id', id);
+      payload.append('username', formData.vuser_name);
+      payload.append('email', formData.vemail);
+      payload.append('first_name', formData.vfirst_name);
+      payload.append('phone_number', formData.phoneNumber);
       if (file) {
-        formData.append('file', file);
+        payload.append('file', formData.file);
       }
       
       try {
         const response = await fetch(`${apiBaseURL}/api/updateprofile/`, {
           method: 'POST',
-          body: formData,
+          body: payload,
         });
 
         if (response.ok) {
@@ -223,7 +230,7 @@ const Profile = () => {
                           name="vfirst_name"
                           id="fullName"
                           placeholder="Enter first name"
-                          defaultValue={profile[0]?.vfirst_name || ''}
+                          value={formData.vfirst_name}
                           onChange={handleChange}
                         />
                         {errors.firstName && <p className='err' style={styles.error}>{errors.firstName}</p>}
@@ -243,8 +250,7 @@ const Profile = () => {
                         name="phoneNumber"
                         id="phoneNumber"
                         placeholder="Enter phone number"
-                        defaultValue={profile[0]?.vphone_number || ''}
-                        value={phoneNumber}
+                        value={formData.phoneNumber}
                         onChange={handleChange}
                       />
                       {errors.phoneNumber && <p className='err' style={styles.error}>{errors.phoneNumber}</p>}
@@ -290,7 +296,7 @@ const Profile = () => {
                           name="vemail"
                           id="emailAddress"
                           placeholder="Enter email"
-                          defaultValue={profile[0]?.vemail || ''}
+                          value={formData.vemail}
                           onChange={handleChange}
                         />
                         {errors.email && <p className='err' style={styles.error}>{errors.email}</p>}
@@ -310,7 +316,7 @@ const Profile = () => {
                         name="vuser_name"
                         id="Username"
                         placeholder="Enter username"
-                        defaultValue={profile[0]?.vuser_name || ''}
+                        value={formData.vuser_name}
                         onChange={handleChange}
                       />
                       {errors.username && <p className='err' style={styles.error}>{errors.username}</p>}

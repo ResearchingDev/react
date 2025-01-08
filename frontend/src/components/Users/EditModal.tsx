@@ -267,7 +267,7 @@ const EditModal: React.FC<EditModalProps> = ({
                   {/* Email */}
                   <div>
                     <label className="mb-2 block text-sm font-medium text-black dark:text-white">
-                      Email
+                      Email Address
                     </label>
                     <input
                       type="email"
