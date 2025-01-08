@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {InputField, Label, SelectField} from '@/components/Forms/FormFields';
 import Modal from 'react-modal';
 import { toast } from "react-toastify";
 import Loader from '@/components/Loader';
@@ -30,22 +31,22 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
         userRole: '',
         status: '',
       });
-    
-      // Validate form
-      const validateForm = () => {
-        let errors: Errors = {};
-    
-        if (!userRole) {
-          errors.userRole = "User role is required.";
-        }
-    
-        if (!status) {
-          errors.status = "Status is required.";
-        }
-    
-        setErrors(errors);
-        setIsFormValid(Object.keys(errors).length === 0);
-      };
+
+    // Validate form
+    const validateForm = () => {
+      let errors: Errors = {};
+  
+      if (!userRole) {
+        errors.userRole = "User role is required.";
+      }
+  
+      if (!status) {
+        errors.status = "Status is required.";
+      }
+  
+      setErrors(errors);
+      setIsFormValid(Object.keys(errors).length === 0);
+    };
     // Submit
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -97,6 +98,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
     }else {
       set_id(""); // Reset _id when no item is selected
       setStatus("active");
+      setFormData({ _id:"", userRole: "", status: "" });
     }
     setErrors({});
   }, [itemDetails]);
@@ -134,33 +136,31 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                 onChange={(e) => set_id(e.target.value)}
             />
         <div>
-          <label className="mb-3 block text-black dark:text-white">User Role:</label>
-          <input
-                type="text"
-                name="userRole"
-                placeholder="Enter User Role"
-                className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                value={userRole}
-                defaultValue={itemDetails?.vrole_name || ""}
-                onChange={(e) => setUserRole(e.target.value)} // Use handleChange here
-            />
+          <Label htmlFor="User Role" text="User Role" required/>
+          <InputField
+            type="text"
+            name="userRole" 
+            value={userRole}
+            placeholder="Enter User Role"
+            onChange={(e) => setUserRole(e.target.value)} // Use handleChange here
+            className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+          />
             {errors.userRole && <p className='err' style={styles.error}>{errors.userRole}</p>}
         </div>
         <div>
-          <label className="mb-3 block text-black dark:text-white">Status:</label>
-          <select
-                value={status}
-                name="status"
-                onChange={(e) => setStatus(e.target.value)} // Use handleChange here
-                className={`relative z-20 w-full rounded border border-stroke bg-transparent px-5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input`}
-                >
-                <option value="">
-                    Select Status
-                </option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-            </select>
-            {errors.status && <p className='err' style={styles.error}>{errors.status}</p>}
+        <Label htmlFor="status" text="Status" required />
+        <SelectField
+          options={[
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' }
+          ]}
+          value={status}
+          name="status"
+          onChange={(e) => setStatus(e.target.value)} // Use handleChange here
+          className="relative z-20 w-full rounded border border-stroke bg-transparent px-5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input"
+          placeholder="Select Status"
+        />
+        {errors.status && <p className='err' style={styles.error}>{errors.status}</p>}
         </div>
         <div>
           <button  type="submit" className="float-right rounded-md bg-primary px-6 py-2 text-white hover:bg-opacity-90 xl:px-6"  disabled={isLoading}>

@@ -1,8 +1,7 @@
 "use client"; 
 
 import React, { useState, useEffect, useRef   } from "react";
-import Label from '@/components/Forms/LabelField';
-import InputField from '@/components/Forms/InputField';
+import {InputField, Label} from '@/components/Forms/FormFields';
 import { useRouter, usePathname } from 'next/navigation'
 import Link from "next/link";
 import Image from "next/image";
@@ -290,7 +289,7 @@ const ResetPassword: React.FC = () => {
             {error && <div className="bg-red-100 text-red-700 border border-red-400 px-4 py-2 rounded-md">{error}</div>}
             <form onSubmit={handleResetForSubmit}>
               <div className="mb-4">
-                <Label htmlFor="password" text="New Password" />
+                <Label htmlFor="password" text="New Password" required/>
                 <div className="relative">
                   <InputField
                     type="password"
@@ -324,7 +323,7 @@ const ResetPassword: React.FC = () => {
                 {errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
               </div>
               <div className="mb-4">
-                <Label htmlFor="confirm_password" text="Confirm Password" />
+                <Label htmlFor="confirm_password" text="Confirm Password" required/>
                 <div className="relative">
                   <InputField
                     type="password"

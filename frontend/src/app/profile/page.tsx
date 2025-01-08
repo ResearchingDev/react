@@ -1,7 +1,7 @@
 "use client"; 
 import React, { useState, useEffect  } from "react";
+import {InputField, Label} from '@/components/Forms/FormFields';
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import Image from "next/image";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { useRouter } from 'next/navigation'
 import { fetchUserProfile } from '../../api/user';
@@ -180,12 +180,7 @@ const Profile = () => {
                 <form onSubmit={handleSubmit}>
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                     <div className="w-full sm:w-1/2">
-                      <label
-                        className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="fullName"
-                      >
-                        Full Name
-                      </label>
+                      <Label htmlFor="fullName" text="Full Name" required/>
                       <div className="relative">
                         <span className="absolute left-4.5 top-4">
                           <svg
@@ -212,46 +207,34 @@ const Profile = () => {
                             </g>
                           </svg>
                         </span>
-                        <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        <InputField
                           type="text"
-                          name="vfirst_name"
-                          id="fullName"
-                          placeholder="Enter first name"
+                          name="vfirst_name" 
                           value={formData.vfirst_name}
+                          placeholder="Enter first name"
                           onChange={handleChange}
+                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                         />
                         {errors.firstName && <p className='err' style={styles.error}>{errors.firstName}</p>}
                       </div>
                     </div>
 
                     <div className="w-full sm:w-1/2">
-                      <label
-                        className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="phoneNumber"
-                      >
-                        Phone Number
-                      </label>
-                      <input
-                        className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                        type="text"
-                        name="phoneNumber"
-                        id="phoneNumber"
-                        placeholder="Enter phone number"
-                        value={formData.phoneNumber}
-                        onChange={handleChange}
-                      />
+                      <Label htmlFor="phoneNumber" text="Phone Number"/>
+                      <InputField
+                          type="text"
+                          name="phoneNumber" 
+                          value={formData.phoneNumber}
+                          placeholder="Enter phone number"
+                          onChange={handleChange}
+                          className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        />
                       {errors.phoneNumber && <p className='err' style={styles.error}>{errors.phoneNumber}</p>}
                     </div>
                   </div>
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                     <div className="w-full sm:w-1/2">
-                      <label
-                        className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="emailAddress"
-                      >
-                        Email Address
-                      </label>
+                      <Label htmlFor="emailAddress" text="Email Address" required/>
                       <div className="relative">
                         <span className="absolute left-4.5 top-4">
                           <svg
@@ -278,47 +261,35 @@ const Profile = () => {
                             </g>
                           </svg>
                         </span>
-                        <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        <InputField
                           type="email"
-                          name="vemail"
-                          id="emailAddress"
-                          placeholder="Enter email"
-                          value={formData.vemail}
+                          name="vemail" 
+                          value={formData.phoneNumber}
+                          placeholder="Enter email address"
                           onChange={handleChange}
+                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"                       
                         />
                         {errors.email && <p className='err' style={styles.error}>{errors.email}</p>}
                       </div>
                     </div>
 
                     <div className="w-full sm:w-1/2">
-                      <label
-                        className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="Username"
-                      >
-                        Username
-                      </label>
-                      <input
-                        className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                        type="text"
-                        name="vuser_name"
-                        id="Username"
-                        placeholder="Enter username"
-                        value={formData.vuser_name}
-                        onChange={handleChange}
-                      />
+                      <Label htmlFor="Username" text="Username" required/>
+                      <InputField
+                          type="text"
+                          name="vuser_name" 
+                          value={formData.vuser_name}
+                          placeholder="Enter username"
+                          onChange={handleChange}
+                          className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        />
                       {errors.username && <p className='err' style={styles.error}>{errors.username}</p>}
                     </div>
                   </div>
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                     
                     <div className="w-full sm:w-1/2">
-                      <label
-                        className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="Username"
-                      >
-                        Profile
-                      </label>
+                      <Label htmlFor="Profile Image" text="Profile Image"/>
                       <div
                         id="FileUpload"
                         className="relative mb-5.5 block w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray px-4 py-4 dark:bg-meta-4 sm:py-7.5"

@@ -1,5 +1,6 @@
 'use client'; // This enables client-side interactivity
 import React, { useState, useEffect } from 'react';
+import {InputField, Label, SelectField} from '@/components/Forms/FormFields';
 import axios from 'axios';
 import Modal from "react-modal";
 import { useRouter } from 'next/navigation'
@@ -46,9 +47,14 @@ const EditModal: React.FC<EditModalProps> = ({
     user_role: "",
     status: "",
     });
+  // Define the options type explicitly for SelectField
+  interface SelectOption {
+    value: string;
+    label: string;
+  }
   const [profile_image, setFile] = useState<File | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
-  const [roles, setRoles] = useState<{ _id: string; vrole_name: string }[]>([]);
+  const [roles, setRoles] = useState<SelectOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -57,6 +63,7 @@ const EditModal: React.FC<EditModalProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
   useEffect(() => {
+    setThumbnailUrl("");
     if (!isOpen) {
       // Reset errors when modal is closed
       setErrors({
@@ -88,7 +95,11 @@ const EditModal: React.FC<EditModalProps> = ({
       const fetchRoles = async () => {  
         try {
           const response = await axios.get(`${apiBaseURL}/api/user-roles/`);
-          setRoles(response.data.data); // Assuming API returns { roles: [{ id, name }] }
+          const roles = response.data.data.map((role:any) => ({
+            value: role._id,
+            label: role.vrole_name,
+          }));
+          setRoles(roles); // Assuming API returns { roles: [{ id, name }] }
         } catch (error) {
           console.error("Error fetching user roles:", error);
         }
@@ -224,7 +235,6 @@ const EditModal: React.FC<EditModalProps> = ({
       console.log('Form has errors');
     }
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -258,13 +268,12 @@ const EditModal: React.FC<EditModalProps> = ({
                 <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
                   {/* First Name */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-black dark:text-white">
-                      First Name
-                    </label>
-                    <input
+                    <Label htmlFor="First Name" text="First Name" required/>
+                    <InputField
                       type="text"
-                      name="first_name"
-                      value={formData.first_name} // Placeholder for `firstName`
+                      name="first_name" 
+                      value={formData.first_name}
+                      placeholder="Enter First Name"
                       onChange={handleChange}
                       className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
@@ -273,13 +282,12 @@ const EditModal: React.FC<EditModalProps> = ({
 
                   {/* Last Name */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-black dark:text-white">
-                      Last Name
-                    </label>
-                    <input
+                    <Label htmlFor="Last Name" text="Last Name"/>
+                    <InputField
                       type="text"
-                      name="last_name"
-                      value={formData.last_name} // Placeholder for `lastName`
+                      name="last_name" 
+                      value={formData.last_name}
+                      placeholder="Enter Last Name"
                       onChange={handleChange}
                       className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
@@ -287,13 +295,12 @@ const EditModal: React.FC<EditModalProps> = ({
                   </div>
                   {/* Password */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-black dark:text-white">
-                      Username
-                    </label>
-                    <input
+                    <Label htmlFor="Username" text="Username" required/>
+                    <InputField
                       type="text"
-                      name="user_name"
-                      value={formData.user_name} // Placeholder for `password`
+                      name="user_name" 
+                      value={formData.user_name}
+                      placeholder="Enter User Name"
                       onChange={handleChange}
                       className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
@@ -302,13 +309,12 @@ const EditModal: React.FC<EditModalProps> = ({
 
                   {/* Email */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-black dark:text-white">
-                      Email Address
-                    </label>
-                    <input
+                    <Label htmlFor="Email Address" text="Email Address" required/>
+                    <InputField
                       type="email"
-                      name="email"
-                      value={formData.email} // Placeholder for `email`
+                      name="email" 
+                      value={formData.email}
+                      placeholder="Enter Email Address"
                       onChange={handleChange}
                       className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
@@ -317,13 +323,12 @@ const EditModal: React.FC<EditModalProps> = ({
 
                   {/* Password */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-black dark:text-white">
-                      Password
-                    </label>
-                    <input
+                    <Label htmlFor="Password" text="Password" required/>
+                    <InputField
                       type="password"
-                      name="password"
-                      value={formData.password} // Placeholder for `password`
+                      name="password" 
+                      value={formData.password}
+                      placeholder="Enter Password"
                       onChange={handleChange}
                       className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
@@ -333,28 +338,21 @@ const EditModal: React.FC<EditModalProps> = ({
                   
                   {/* User Role */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-black dark:text-white">
-                      User Role
-                    </label>
-                    <select
-                      name="user_role"
+                    <Label htmlFor="User Role" text="User Role" required/>
+                    <SelectField
+                      options={roles}
                       value={formData.user_role}
+                      name="user_role"
                       onChange={handleChange}
-                      className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-                    >
-                      <option value="">Select User Role</option>
-                      {roles.map((role) => (
-                        <option key={role._id} value={role._id}>{role.vrole_name}</option>
-                      ))}
-                    </select>
+                      className="relative z-20 w-full rounded border border-stroke bg-transparent px-5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input"
+                      placeholder="Select Status"
+                    />
                     {errors.user_role && <p className='err' style={{ color: 'red' }}>{errors.user_role}</p>}
                   </div>
 
                   {/* Status */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-black dark:text-white">
-                      Status
-                    </label>
+                    <Label htmlFor="Status" text="Status" required/>
                     <select
                       name="status"
                       value={formData.status}
@@ -371,12 +369,7 @@ const EditModal: React.FC<EditModalProps> = ({
               </div>
               <div>
                 <div className="mb-5.5">
-                  <label
-                    className="mb-3 block text-sm font-medium text-black dark:text-white"
-                    htmlFor="Username"
-                  >
-                    Profile
-                  </label>
+                  <Label htmlFor="Profile Image" text="Profile Image"/>
                   {thumbnailUrl && (
                     <div>
                       <img

@@ -1,7 +1,6 @@
 "use client"; 
 import React, { useState, useEffect  } from "react";
-import Label from '@/components/Forms/LabelField';
-import InputField from '@/components/Forms/InputField';
+import {InputField, Label} from '@/components/Forms/FormFields';
 import Loader from '@/components/Loader';
 import Link from "next/link";
 import Image from "next/image";
@@ -266,7 +265,7 @@ const SignIn: React.FC = () => {
             </div>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <Label htmlFor="email" text="Email Address" />
+                <Label htmlFor="email" text="Email Address" required/>
                 <div className="relative">
                   <InputField
                     type="text"
@@ -296,7 +295,7 @@ const SignIn: React.FC = () => {
                 {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
               </div>
               <div className="mb-6">
-                <Label htmlFor="password" text="Password" />
+                <Label htmlFor="password" text="Password" required/>
                 <div className="relative">
                   <InputField
                     type="password"

@@ -86,23 +86,27 @@ class SignupAPIView(APIView):
         user_name = request.data.get("user_name")
         email = request.data.get("email")
         password = request.data.get("password")
-
+        phone_number = request.data.get("phone_number")
+        
         if first_name and user_name and email and password:
             try:
                 #check username or email exists
                 existing_users = list(users_collection.find({
                     "$or": [
                         {"vuser_name": user_name},
-                        {"vemail": email}
+                        {"vemail": email},
+                        {"vphone_number": phone_number},
                     ]
                 }))
                 
                 signup_err = []
                 for user in existing_users:
-                    if user["user_name"] == user_name:
+                    if user["vuser_name"] == user_name:
                         signup_err.append({"error": "Username already exists!", "field": "user_name"})
-                    if user["email"] == email:
+                    if user["vemail"] == email:
                         signup_err.append({"error": "Email already registered!", "field": "email"})
+                    if user["vphone_number"] == phone_number:
+                        signup_err.append({"error": "Phone number already exists!", "field": "phone_number"})
 
                 if signup_err:
                     return Response(
@@ -120,6 +124,7 @@ class SignupAPIView(APIView):
                         "vuser_name": user_name,
                         "vpassword": hashed_password.decode('utf-8'),
                         "vemail": email,
+                        "vphone_number": phone_number,
                         'estatus':'Active',
                         'tdeleted_status':0,
                         "dcreated_at": datetime.utcnow(),  # Add current timestamp

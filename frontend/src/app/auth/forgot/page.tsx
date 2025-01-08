@@ -1,7 +1,6 @@
 "use client"; 
 import React, { useState, useEffect, useRef  } from "react";
-import Label from '@/components/Forms/LabelField';
-import InputField from '@/components/Forms/InputField';
+import {InputField, Label} from '@/components/Forms/FormFields';
 import Link from "next/link";
 import Image from "next/image";
 import axios from 'axios';
@@ -261,7 +260,7 @@ const Forgot: React.FC = () => {
             {error && <div className="bg-red-100 text-red-700 border border-red-400 px-4 py-2 rounded-md">{error}</div>}
             <form onSubmit={handleForSubmit}>
               <div className="mb-4">
-                <Label htmlFor="email" text="Email Address" />
+                <Label htmlFor="email" text="Email Address" required/>
                 <div className="relative">
                   <InputField
                     type="text"
