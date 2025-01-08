@@ -68,7 +68,7 @@ const DataTableComponent: React.FC = () => {
       sortable: true,
     },
     {
-      name: <strong>Email</strong>,
+      name: <strong>Email Address</strong>,
       selector: (row: any) => row.vemail,
       sortable: true,
     },
