@@ -43,6 +43,9 @@ const SignIn: React.FC = () => {
    if (isCheckingSession) {
     return null; // Render nothing while checking session
   }
+  const handleClick = () => {
+    setIsLoading(true);
+  };
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -347,7 +350,7 @@ const SignIn: React.FC = () => {
               <div className="mt-6 text-center">
                 <p>
                   Don’t have any account?{" "}
-                  <Link href="/auth/signup" className="text-primary">
+                  <Link href="/auth/signup" className="text-primary" onClick={handleClick}>
                     Sign Up
                   </Link>
                 </p>                
