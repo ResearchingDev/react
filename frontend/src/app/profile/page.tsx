@@ -151,7 +151,7 @@ const Profile = () => {
       payload.append('first_name', formData.vfirst_name);
       payload.append('phone_number', formData.phoneNumber);
       if (file) {
-        payload.append('file', formData.file);
+        payload.append('file', file);
       }
       
       try {
