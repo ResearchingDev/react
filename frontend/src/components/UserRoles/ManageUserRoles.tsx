@@ -155,7 +155,7 @@ const DataTableComponent: React.FC = () => {
             onClick={() => handleAdd(data)}
             >
             <FaPlus className="mr-2" />
-            Add Role
+            Add User Role
         </button>
       }
     />
