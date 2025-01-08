@@ -59,6 +59,9 @@ const SignUp: React.FC = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+  const handleClick = () => {
+    setIsLoading(true);
+  };
   /** validateForm method used to validate the form details */
   const validateForm = (): boolean => {
     let isValid = true;
@@ -549,7 +552,7 @@ const SignUp: React.FC = () => {
                 <div className="mt-6 text-center">
                   <p>
                     Already have an account?{" "}
-                    <Link href="/auth/signin" className="text-primary">
+                    <Link href="/auth/signin" className="text-primary" onClick={handleClick}>
                       Sign in
                     </Link>
                   </p>

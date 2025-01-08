@@ -114,11 +114,6 @@ const EditModal: React.FC<EditModalProps> = ({
       newErrors.first_name = 'This field is required';
       isValid = false;
     }
-    // Validate last_name
-    if (!formData.last_name.trim()) {
-      newErrors.last_name = 'This field is required';
-      isValid = false;
-    }
     // Validate User Name
     if (!formData.user_name.trim()) {
       newErrors.user_name = 'This field is required';
@@ -212,16 +207,18 @@ const EditModal: React.FC<EditModalProps> = ({
         // Redirect to another page after successful sign-in
           setTimeout(() => {
           setMessage(response.data.message);
-          setFormData({
-            first_name: "",
-            last_name: "",
-            user_name: "",
-            email: "",
-            password: "",
-            user_role: "",
-            status: "",
-            profile_image:"",
-          });
+          if (IsisAction !== 'Edit User') {
+            setFormData({
+              first_name: "",
+              last_name: "",
+              user_name: "",
+              email: "",
+              password: "",
+              user_role: "",
+              status: "",
+              profile_image:"",
+            });
+          }
             router.push('/users/manage-users');
             setIsLoading(false);
           }, 2000); // Delay the redirection to show the success message for 2 seconds
