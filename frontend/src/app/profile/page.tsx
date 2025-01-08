@@ -5,30 +5,28 @@ import Image from "next/image";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { useRouter } from 'next/navigation'
 import { fetchUserProfile } from '../../api/user';
-import { toast } from "react-toastify";
+import Loader from '@/components/Loader';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const Profile = () => {
   const router = useRouter();
   const [profile, setProfile] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const id = sessionStorage.getItem('userId') || '';
-
   const [file, setFile] = useState<File | null>(null);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [phoneNumber, setphoneNumber] = useState('');
-  const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
+ const [isLoading, setIsLoading] = useState(false);
+ const [message, setMessage] = useState("");
   const imageUrl_M = "http://localhost:8000/uploads/durz1r3l_Manikandan_Software_Developer.png";
   //Set FormData
   const [formData, setFormData] = useState({
-    username: "",
-    firstName: "",
-    email: "",
+    vuser_name: "",
+    vfirst_name: "",
+    vemail: "",
     phoneNumber: "",
     file: "",
   });
@@ -58,16 +56,16 @@ const Profile = () => {
         setphoneNumber(data.vphone_number);
         setEmail(data.vemail);
         setFormData({
-          username: data.vuser_name || '',
-          firstName: data.vfirst_name || '',
-          email: data.vemail, // Default to 'inactive'
-          phoneNumber: data.vphone_number,
-          file: data.profile_picture,
+          vuser_name: data.vuser_name || "",
+          vfirst_name: data.vfirst_name || "",
+          vemail: data.vemail  || "",
+          phoneNumber: data.vphone_number || "",
+          file: data.profile_picture || "",
         });
       } catch (error) {
         console.error('Error:', error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -79,19 +77,18 @@ const Profile = () => {
     let valid = true;
     const newErrors = { username: "", firstName: "", email: "", phoneNumber: "", file: ""}
 
-    if (!formData.firstName.trim()) {
+    if (!formData.vfirst_name.trim()) {
       newErrors.firstName = "First name is required";
       valid = false;
     }
 
-    if (!formData.email.trim()) {
+    if (!formData.vemail.trim()) {
       newErrors.email = "Email is required";
       valid = false;
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/\S+@\S+\.\S+/.test(formData.vemail)) {
       newErrors.email = "Invalid email format";
       valid = false;
     }
-    console.log(formData)
     if (!formData.phoneNumber?.trim()) {
       newErrors.phoneNumber = "Phone number is required";
       valid = false;
@@ -100,17 +97,20 @@ const Profile = () => {
       valid = false;
     }
 
-    if (!file) {
-      newErrors.file = "Profile image is required";
-      valid = false;
-    } else if (!["image/jpeg", "image/png"].includes(file.type)) {
-      newErrors.file = "Only JPEG or PNG images are allowed";
-      valid = false;
-    } else if (file.size > 2 * 1024 * 1024) {
-      newErrors.file = "Image size must be less than 2MB";
-      valid = false;
+    if (profile && profile.length > 0 && profile[0].profile_picture){
+      valid = true;
+    }else{
+      if (!file) {
+        newErrors.file = "Profile image is required";
+        valid = false;
+      } else if (!["image/jpeg", "image/png"].includes(file.type)) {
+        newErrors.file = "Only JPEG or PNG images are allowed";
+        valid = false;
+      } else if (file.size > 2 * 1024 * 1024) {
+        newErrors.file = "Image size must be less than 2MB";
+        valid = false;
+      }
     }
-
     setErrors(newErrors);
     return valid;
   };
@@ -118,7 +118,11 @@ const Profile = () => {
   /** handleChange method used to push form data into required obj */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    console.log(`Updating field: ${name}, New value: ${value}`);
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
   //File Onchange action
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,36 +138,37 @@ const Profile = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      setUploading(true);
+      setIsLoading(true);
       setError(null);
-
-      const formData = new FormData();
-      formData.append('id', id);
-      formData.append('username', username);
-      formData.append('email', email);
-      formData.append('first_name', firstName);
-      formData.append('phone_number', phoneNumber);
+      const payload = new FormData();
+      payload.append('id', id);
+      payload.append('username', formData.vuser_name);
+      payload.append('email', formData.vemail);
+      payload.append('first_name', formData.vfirst_name);
+      payload.append('phone_number', formData.phoneNumber);
       if (file) {
-        formData.append('file', file);
+        payload.append('file', formData.file);
       }
       
       try {
         const response = await fetch(`${apiBaseURL}/api/updateprofile/`, {
           method: 'POST',
-          body: formData,
+          body: payload,
         });
-
         if (response.ok) {
           const result = await response.json();
+          setMessage(result.message);
           setImageUrl(result.url);
-          toast.success(result.message);
+          setTimeout(() => {
+            setMessage('');
+          }, 1000);
         } else {
           throw new Error('Failed to upload image');
         }
+        setIsLoading(false);
       } catch (error) {
         setError('Error uploading image: ' + error);
-      } finally {
-        setUploading(false);
+        setIsLoading(false);
       }
     }
   };
@@ -179,6 +184,7 @@ const Profile = () => {
       <div className="mx-auto max-w-242.5">
         <Breadcrumb pageName="Profile" />
         <div className="grid grid-cols-5 gap-8">
+        {message && <div className="bg-green-100 text-green-700 border border-green-400 px-4 py-2 rounded-md">{message}</div>}
           <div className="col-span-5">
             <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
               <div className="p-7">
@@ -223,7 +229,7 @@ const Profile = () => {
                           name="vfirst_name"
                           id="fullName"
                           placeholder="Enter first name"
-                          defaultValue={profile[0]?.vfirst_name || ''}
+                          value={formData.vfirst_name}
                           onChange={handleChange}
                         />
                         {errors.firstName && <p className='err' style={styles.error}>{errors.firstName}</p>}
@@ -243,8 +249,7 @@ const Profile = () => {
                         name="phoneNumber"
                         id="phoneNumber"
                         placeholder="Enter phone number"
-                        defaultValue={profile[0]?.vphone_number || ''}
-                        value={phoneNumber}
+                        value={formData.phoneNumber}
                         onChange={handleChange}
                       />
                       {errors.phoneNumber && <p className='err' style={styles.error}>{errors.phoneNumber}</p>}
@@ -290,7 +295,7 @@ const Profile = () => {
                           name="vemail"
                           id="emailAddress"
                           placeholder="Enter email"
-                          defaultValue={profile[0]?.vemail || ''}
+                          value={formData.vemail}
                           onChange={handleChange}
                         />
                         {errors.email && <p className='err' style={styles.error}>{errors.email}</p>}
@@ -310,7 +315,7 @@ const Profile = () => {
                         name="vuser_name"
                         id="Username"
                         placeholder="Enter username"
-                        defaultValue={profile[0]?.vuser_name || ''}
+                        value={formData.vuser_name}
                         onChange={handleChange}
                       />
                       {errors.username && <p className='err' style={styles.error}>{errors.username}</p>}
@@ -411,12 +416,13 @@ const Profile = () => {
                     </button>
                     <button
                       className="flex justify-center rounded bg-primary px-6 py-2 font-medium text-gray hover:bg-opacity-90"
-                      type="submit"
+                      type="submit" disabled={isLoading}
                     >
                       Save
                     </button>
                   </div>
                 </form>
+                {isLoading && <Loader />} 
               </div>
             </div>
           </div>

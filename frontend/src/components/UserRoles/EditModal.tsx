@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { toast } from "react-toastify";
+import Loader from '@/components/Loader';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
   interface EditModalProps {
     isOpen: boolean; // For the modal's open state
@@ -23,6 +24,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
       const [isFormValid, setIsFormValid] = useState<boolean>(false);
       const [selectedOption, setSelectedOption] = useState<string>("");
       const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
+      const [isLoading, setIsLoading] = useState(false);
       const [formData, setFormData] = useState({
         _id: '',
         userRole: '',
@@ -52,7 +54,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
         toast.error("Form fields are empty or invalid.");
         return;
       }
-    
+      setIsLoading(true);
       const payload = { userRole, status, _id};
       try {
         const response = await fetch(`${apiBaseURL}/api/manageuserrole/`, {
@@ -73,8 +75,10 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
         } else {
           toast.error(data.message || "Failed to add user role.");
         }
+        setIsLoading(false);
       } catch (error) {
         toast.error("Network error. Please try again.");
+        setIsLoading(false);
       }
     };
     //Custom form error styles
@@ -159,7 +163,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
             {errors.status && <p className='err' style={styles.error}>{errors.status}</p>}
         </div>
         <div>
-          <button  type="submit" className="float-right rounded-md bg-primary px-6 py-2 text-white hover:bg-opacity-90 xl:px-6">
+          <button  type="submit" className="float-right rounded-md bg-primary px-6 py-2 text-white hover:bg-opacity-90 xl:px-6"  disabled={isLoading}>
             Save
           </button>
           <button className="mr-3 float-right rounded-md bg-gray-400 px-6 py-2 text-white hover:bg-opacity-90 xl:px-6" type="button" onClick={onClose}>
@@ -167,6 +171,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
           </button>
         </div>
       </form>
+      {isLoading && <Loader />} 
     </Modal>
   );
 };

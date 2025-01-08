@@ -94,6 +94,18 @@ const SignUp: React.FC = () => {
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
       isValid = false;
+    } else if (!/[A-Z]/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one uppercase letter';
+      isValid = false;
+    }  else if (!/[a-z]/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one lowercase letter';
+      isValid = false;
+    } else if (!/[0-9]/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one number';
+      isValid = false;
+    } else if (!/[@$!%*?&]/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one special character';
+      isValid = false;
     }
 
     // Validate Confirm Password
@@ -118,19 +130,18 @@ const SignUp: React.FC = () => {
           }
       })
       .then(response => {
-          setMessage(response.data.message);
-          setFormData({
-            first_name: '',
-            user_name: '',
-            email: '',
-            password: '',
-            confirm_password: '',
-          });
         // Redirect to another page after successful sign-in
           setTimeout(() => {
+            setFormData({
+              first_name: '',
+              user_name: '',
+              email: '',
+              password: '',
+              confirm_password: '',
+            });
             router.push('/auth/signin');
+            setIsLoading(false);
           }, 2000); // Delay the redirection to show the success message for 2 seconds
-          setIsLoading(false);
       })
       .catch(err => {
         if (err.response && err.response.data.errors) {
@@ -142,6 +153,7 @@ const SignUp: React.FC = () => {
         } else {
           setError('An unexpected error occurred.');
         }
+        setIsLoading(false);
       });
     } else {
       console.log('Form has errors');

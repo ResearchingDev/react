@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from "next/link";
 import Image from "next/image";
 import axios from 'axios';
-
+import Loader from '@/components/Loader';
 import { getCsrfToken } from '../../csrf'
 
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -26,7 +26,7 @@ const ResetPassword: React.FC = () => {
 
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-
+  const [isLoading, setIsLoading] = useState(false);
 
    // Extract the JWT token from the pathname (URL path)
    useEffect(() => {
@@ -68,10 +68,22 @@ const ResetPassword: React.FC = () => {
     const newErrors = {password: '', confirm_password: '' };
     // Validate Password
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'This field is required';
       isValid = false;
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
+      isValid = false;
+    } else if (!/[A-Z]/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one uppercase letter';
+      isValid = false;
+    }  else if (!/[a-z]/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one lowercase letter';
+      isValid = false;
+    } else if (!/[0-9]/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one number';
+      isValid = false;
+    } else if (!/[@$!%*?&]/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one special character';
       isValid = false;
     }
 
@@ -88,6 +100,7 @@ const ResetPassword: React.FC = () => {
   const handleResetForSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
+      setIsLoading(true);
       await axios.post( `${apiBaseURL}/api/reset-password/`, {
         token: jwtToken, new_password : formData.password
       }, {
@@ -97,11 +110,11 @@ const ResetPassword: React.FC = () => {
           }
       })
       .then(response => {
-          setMessage(response.data.message);
-          setFormData({password: '',confirm_password:''});
           // Redirect to another page after successful sign-in
           setTimeout(() => {
+            setFormData({password: '',confirm_password:''});
             router.push(`/auth/signin/`);
+            setIsLoading(false);
           }, 2000); // Delay the redirection to show the success message for 2 seconds
       })
       .catch(err => {
@@ -110,6 +123,7 @@ const ResetPassword: React.FC = () => {
         } else {
           setError('An unexpected error occurred.');
         }
+        setIsLoading(false);
       });
     } else {
       console.log('Form has errors');
@@ -348,6 +362,7 @@ const ResetPassword: React.FC = () => {
                   type="submit"
                   value="Send"
                   className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
+                  disabled={isLoading}
                 />
               </div>
 
@@ -360,6 +375,7 @@ const ResetPassword: React.FC = () => {
                 </p>
               </div>
             </form>
+            {isLoading && <Loader />} 
           </div>
         </div>
       </div>
