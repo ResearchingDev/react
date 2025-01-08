@@ -75,6 +75,9 @@ const SignUp: React.FC = () => {
     } else if (formData.user_name.length < 5) {
       newErrors.user_name = 'User name must be at least 5 characters';
       isValid = false;
+    }else if (/\s/.test(formData.user_name)) {  // Check for spaces
+      newErrors.user_name = 'User name cannot contain spaces';
+      isValid = false;
     }
 
     // Validate Email

@@ -164,7 +164,7 @@ class ProfileAddOrUpdate(APIView):
         if result.matched_count == 0:
             return Response({'error': 'User not found'}, status=404)
 
-        return Response({'message': 'User updated successfully'}, status=200)
+        return Response({'message': 'Profile Updated Successfully'}, status=200)
 
 def generate_random_filename(length=8):
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
