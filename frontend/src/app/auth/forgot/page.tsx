@@ -78,12 +78,13 @@ const Forgot: React.FC = () => {
             }
         })
         .then(response => {
+            setMessage(response.data.message);
             // Redirect to another page after successful sign-in
             setTimeout(() => {
               setFormData({email: ''});
               router.push(`/auth/reset/${response.data.token}`);
               setIsLoading(false);
-            }, 2000); // Delay the redirection to show the success message for 2 seconds
+            }, 500); // Delay the redirection to show the success message for 2 seconds
         })
         .catch(err => {
           if (err.response && err.response.data.error) {
