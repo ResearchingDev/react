@@ -15,7 +15,7 @@ const Profile = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
-  const [phoneNumber, setphoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -49,26 +49,30 @@ const Profile = () => {
     const getUserProfile = async () => {
       try {
         const data = await fetchUserProfile();
-        console.log(data)
         setProfile([data]); // Overwrite with new data
         setUsername(data.vuser_name);
         setFirstName(data.vfirst_name);
-        setphoneNumber(data.vphone_number);
+        // Handle phone number: set an empty string if it's null or undefined
+        const number = (data.vphone_number && data.vphone_number !== 'null') ? data.vphone_number : "";
+        setPhoneNumber(number);
         setEmail(data.vemail);
+        
+        // Ensure the form data is set correctly, including phone number
         setFormData({
           vuser_name: data.vuser_name || "",
           vfirst_name: data.vfirst_name || "",
-          vemail: data.vemail  || "",
-          phoneNumber: data.vphone_number || "",
+          vemail: data.vemail || "",
+          phoneNumber: number, // Set the phone number properly here
           file: data.profile_picture || "",
         });
+    
       } catch (error) {
         console.error('Error:', error);
       } finally {
         setIsLoading(false);
       }
     };
-
+    
     getUserProfile();
   }, [id, router]);
 
@@ -89,10 +93,7 @@ const Profile = () => {
       newErrors.email = "Invalid email format";
       valid = false;
     }
-    if (!formData.phoneNumber?.trim()) {
-      newErrors.phoneNumber = "Phone number is required";
-      valid = false;
-    } else if (!/^\d{10}$/.test(formData.phoneNumber)) {
+    if ((formData.phoneNumber) && !/^\d{10}$/.test(formData.phoneNumber)) {
       newErrors.phoneNumber = "Phone number must be 10 digits";
       valid = false;
     }
