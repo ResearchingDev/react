@@ -83,6 +83,7 @@ const EditModal: React.FC<EditModalProps> = ({
           status: itemDetails.estatus || 'active',
           profile_image: itemDetails.vprofile_image || '',
         });
+        if(itemDetails.vprofile_image) setThumbnailUrl(`${apiBaseURL}/${itemDetails.vprofile_image}`)
       }
       const fetchRoles = async () => {  
         try {
