@@ -112,10 +112,10 @@ const DataTableComponent: React.FC = () => {
     if (confirmed.isConfirmed) {
       const response = await deleteItem(itemId,url);
       if (response) {
-        Swal.fire("Deleted!", "The item has been deleted.", "success");
+        Swal.fire("Deleted!", response.message || "The item has been deleted.", "success");
         fetchData(page, perPage); // Refresh data after successful deletion
       } else {
-        Swal.fire("Error!", "Failed to delete the item.", "error");
+        Swal.fire("Error!", response.message || "Failed to delete the item.", "error");
       }
     }
   };
