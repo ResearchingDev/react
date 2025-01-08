@@ -154,7 +154,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                 onChange={(e) => setStatus(e.target.value)} // Use handleChange here
                 className={`relative z-20 w-full rounded border border-stroke bg-transparent px-5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input`}
                 >
-                <option value="" disabled>
+                <option value="">
                     Select Status
                 </option>
                 <option value="active">Active</option>
