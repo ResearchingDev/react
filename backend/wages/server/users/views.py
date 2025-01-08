@@ -155,11 +155,12 @@ class UserEditAPIView(APIView):
                     "vuser_name": user_name,
                     "vpassword": hashed_password,
                     "vemail": email,
-                    "vprofile_image": profile_picture,
                     "estatus":user_status,
                     "tdeleted_status": 0,
                     "dupdated_at": datetime.utcnow(),
                 }
+                if profile_image:
+                    edit_user_data["vprofile_image"] = profile_picture
                 if existing_user:
                     # If the role exists, update it
                     update_result = users_collection.update_one(
