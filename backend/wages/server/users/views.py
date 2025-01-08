@@ -145,7 +145,7 @@ class UserEditAPIView(APIView):
                     original_file_name = profile_image.name
                     extension = original_file_name.split('.')[-1]
                     new_file_name = f"{generate_random_filename()}_{original_file_name.split('.')[0]}.{extension}"
-                    file_path = default_storage.save(f'uploads/{new_file_name}', profile_image)
+                    file_path = default_storage.save(f'{new_file_name}', profile_image)
                     file_url = f'{settings.MEDIA_URL}{file_path}'
                     profile_picture = file_url
                 edit_user_data = {

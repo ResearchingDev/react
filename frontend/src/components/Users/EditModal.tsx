@@ -57,6 +57,21 @@ const EditModal: React.FC<EditModalProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
   useEffect(() => {
+    if (!isOpen) {
+      // Reset errors when modal is closed
+      setErrors({
+        first_name: "",
+        last_name: "",
+        user_name: "",
+        email: "",
+        password: "",
+        profile_image: "",
+        user_role: "",
+        status: "",
+      });
+    }
+  }, [isOpen]);
+  useEffect(() => {
       if (itemDetails) {
         setFormData({
           first_name: itemDetails.vfirst_name || '',
@@ -98,6 +113,9 @@ const EditModal: React.FC<EditModalProps> = ({
       isValid = false;
     } else if (formData.user_name.length < 5) {
       newErrors.user_name = 'User name must be at least 5 characters';
+      isValid = false;
+    }else if (/\s/.test(formData.user_name)) {  // Check for spaces
+      newErrors.user_name = 'User name cannot contain spaces';
       isValid = false;
     }
     // Validate Email
@@ -343,8 +361,8 @@ const EditModal: React.FC<EditModalProps> = ({
                       className="w-full rounded-lg border border-stroke bg-transparent py-2 px-3 text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     >
                       <option value="">Select Status</option>
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
                     </select>
                     {errors.status && <p className='err' style={{ color: 'red' }}>{errors.status}</p>}
                   </div>
