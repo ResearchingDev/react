@@ -4,7 +4,6 @@ import {InputField, Label, SelectField} from '@/components/Forms/FormFields';
 import axios from 'axios';
 import Modal from "react-modal";
 import { useRouter } from 'next/navigation'
-import Image from "next/image";
 import Loader from '@/components/Loader';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 interface EditModalProps {
@@ -81,6 +80,20 @@ const EditModal: React.FC<EditModalProps> = ({
       });
     }
   }, [isOpen]);
+  /**Reset FormData */
+  function resetFormData() {
+    setFormData({
+      first_name: "",
+      last_name: "",
+      user_name: "",
+      email: "",
+      password: "",
+      phone_number: "",
+      user_role: "",
+      status: "",
+      profile_image:"",
+    });
+  }
   useEffect(() => {
       if (itemDetails) {
         setFormData({
@@ -175,7 +188,7 @@ const EditModal: React.FC<EditModalProps> = ({
     setErrors(newErrors);
     return isValid;
   };
-   //File Onchange action
+    //File Onchange action
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFile = e.target.files ? e.target.files[0] : null;
       if (selectedFile) {
@@ -215,20 +228,10 @@ const EditModal: React.FC<EditModalProps> = ({
       .then(response => {
         // Redirect to another page after successful sign-in
           setTimeout(() => {
-          setMessage(response.data.message);
-          if (IsisAction !== 'Edit User') {
-            setFormData({
-              first_name: "",
-              last_name: "",
-              user_name: "",
-              email: "",
-              password: "",
-              phone_number: "",
-              user_role: "",
-              status: "",
-              profile_image:"",
-            });
-          }
+            setMessage(response.data.message);
+            if (IsisAction !== 'Edit User') {
+              resetFormData();
+            }
             router.push('/users/manage-users');
             setIsLoading(false);
           }, 2000); // Delay the redirection to show the success message for 2 seconds
@@ -462,14 +465,17 @@ const EditModal: React.FC<EditModalProps> = ({
           <button
               className="rounded-md bg-gray-400 px-6 py-2 text-white hover:bg-opacity-90"
               type="button"
-              onClick={onClose}
+              onClick={()=>{
+                resetFormData();
+                onClose()
+              }}
             >
               Cancel
             </button>
             <button
               className="rounded-md bg-primary px-6 py-2 text-white hover:bg-opacity-90"
               type="submit" disabled={isLoading}
-            >
+              >
               Save
             </button>
             
