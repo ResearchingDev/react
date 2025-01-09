@@ -32,7 +32,8 @@ class UserAPIView(APIView):
                 existing_users = list(users_collection.find({
                     "$or": [
                         {"vuser_name": user_name},
-                        {"vemail": email}
+                        {"vemail": email},
+                        {"vphone_number": phone_number},
                     ]
                 }))
                 user_err = []
@@ -41,6 +42,8 @@ class UserAPIView(APIView):
                         user_err.append({"error": "Username already exists!", "field": "user_name"})
                     if user["vemail"] == email:
                         user_err.append({"error": "Email already registered!", "field": "email"})
+                    if user["vphone_number"] == phone_number:
+                        user_err.append({"error": "Phone number already exists!", "field": "phone_number"})
                 if user_err:
                     return Response(
                         {"errors": user_err},
@@ -48,37 +51,36 @@ class UserAPIView(APIView):
                     )
                     # Hash the password before saving
                 else:
-                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-                # If a new file is uploaded, save and update the path
-                profile_picture = ""
-                if profile_image:
+                  hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+                  # If a new file is uploaded, save and update the path
+                  profile_picture = ""
+                  if profile_image:
                     original_file_name = profile_image.name
                     extension = original_file_name.split('.')[-1]
                     new_file_name = f"{generate_random_filename()}_{original_file_name.split('.')[0]}.{extension}"
                     file_path = default_storage.save(f'uploads/{new_file_name}', profile_image)
                     file_url = f'{settings.MEDIA_URL}{file_path}'
                     profile_picture = file_url
-                # Create a new user dictionary to store in MongoDB
-                user_data = {
-                    "irole_id":user_role,
-                    "vfirst_name": first_name,
-                    "vlast_name": last_name,
-                    "vuser_name": user_name,
-                    "vpassword": hashed_password.decode('utf-8'),
-                    "vemail": email,
-                    "vphone_number": phone_number,
-                    "vprofile_image": profile_picture,
-                    "estatus":user_status,
-                    "tdeleted_status": 0,
-                    "dcreated_at": datetime.utcnow(),  # Add current timestamp
-                    "dupdated_at": None,
-                }
+                    # Create a new user dictionary to store in MongoDB
+                    user_data = {
+                        "irole_id":user_role,
+                        "vfirst_name": first_name,
+                        "vlast_name": last_name,
+                        "vuser_name": user_name,
+                        "vpassword": hashed_password.decode('utf-8'),
+                        "vemail": email,
+                        "vphone_number": phone_number,
+                        "vprofile_image": profile_picture,
+                        "estatus":user_status,
+                        "tdeleted_status": 0,
+                        "dcreated_at": datetime.utcnow(),  # Add current timestamp
+                        "dupdated_at": None,
+                    }
                     # Insert the user data into the MongoDB collection
-                result = users_collection.insert_one(user_data)
+                    result = users_collection.insert_one(user_data)
                     # Convert ObjectId to string
-                user_data["_id"] = str(result.inserted_id)
-
-                return Response({"message": "User created successfully!", "data": user_data}, status=status.HTTP_201_CREATED)
+                    user_data["_id"] = str(result.inserted_id)
+                    return Response({"message": "User created successfully!", "data": user_data}, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -138,40 +140,63 @@ class UserEditAPIView(APIView):
         user_role = request.data.get("user_role")
         user_status = request.data.get("status")
         phone_number = request.data.get("phone_number")
+        user_id = request.data.get("user_id")
         if first_name and user_name and email:
             try:
-                existing_user = users_collection.find_one({"vuser_name": user_name})
-                hashed_password = existing_user["vpassword"]  # Use the existing password if no new one is provided
-                if password:
-                    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-                   # If a new file is uploaded, save and update the path
-                if profile_image:
-                    original_file_name = profile_image.name
-                    extension = original_file_name.split('.')[-1]
-                    new_file_name = f"{generate_random_filename()}_{original_file_name.split('.')[0]}.{extension}"
-                    file_path = default_storage.save(f'{new_file_name}', profile_image)
-                    file_url = f'{settings.MEDIA_URL}{file_path}'
-                    profile_picture = file_url
-                edit_user_data = {
-                    "irole_id":user_role,
-                    "vfirst_name": first_name,
-                    "vlast_name": last_name,
-                    "vuser_name": user_name,
-                    "vpassword": hashed_password,
-                    "vphone_number": phone_number,
-                    "vemail": email,
-                    "estatus":user_status,
-                    "tdeleted_status": 0,
-                    "dupdated_at": datetime.utcnow(),
-                }
-                if profile_image:
-                    edit_user_data["vprofile_image"] = profile_picture
-                if existing_user:
-                    # If the role exists, update it
-                    update_result = users_collection.update_one(
-                        {"_id": ObjectId(existing_user["_id"])},
-                        {"$set": edit_user_data}
+                existing_user = users_collection.find_one({"_id": ObjectId(user_id)})
+                duplicate_user = list(users_collection.find({
+                    "$or": [
+                        {"vuser_name": user_name},
+                        {"vemail": email},
+                        {"vphone_number": phone_number}
+                    ],
+                    "_id": {"$ne": ObjectId(existing_user["_id"])}
+                }))
+                u_err = []
+                for user in duplicate_user:
+                    if user["vuser_name"] == user_name:
+                        u_err.append({"error": "Username already exists!", "field": "user_name"})
+                    if user["vemail"] == email:
+                        u_err.append({"error": "Email already exists!", "field": "email"})
+                    if user["vphone_number"] == phone_number:
+                        u_err.append({"error": "Phone number already exists!", "field": "phone_number"})
+                if u_err:
+                    return Response(
+                        {"errors": u_err},
+                        status=status.HTTP_400_BAD_REQUEST
                     )
+                else:
+                    hashed_password = existing_user["vpassword"]  # Use the existing password if no new one is provided
+                    if password:
+                        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                    # If a new file is uploaded, save and update the path
+                    if profile_image:
+                        original_file_name = profile_image.name
+                        extension = original_file_name.split('.')[-1]
+                        new_file_name = f"{generate_random_filename()}_{original_file_name.split('.')[0]}.{extension}"
+                        file_path = default_storage.save(f'{new_file_name}', profile_image)
+                        file_url = f'{settings.MEDIA_URL}{file_path}'
+                        profile_picture = file_url
+                    edit_user_data = {
+                        "irole_id":user_role,
+                        "vfirst_name": first_name,
+                        "vlast_name": last_name,
+                        "vuser_name": user_name,
+                        "vpassword": hashed_password,
+                        "vphone_number": phone_number,
+                        "vemail": email,
+                        "estatus":user_status,
+                        "tdeleted_status": 0,
+                        "dupdated_at": datetime.utcnow(),
+                    }
+                    if profile_image:
+                        edit_user_data["vprofile_image"] = profile_picture
+                    if existing_user:
+                        # If the role exists, update it
+                        update_result = users_collection.update_one(
+                            {"_id": ObjectId(existing_user["_id"])},
+                            {"$set": edit_user_data}
+                        )
                     if update_result.modified_count > 0:
                         return Response({"message": "User updated successfully"})
                     else:

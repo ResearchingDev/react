@@ -6,6 +6,7 @@ import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { useRouter } from 'next/navigation'
 import { fetchUserProfile } from '../../api/user';
 import Loader from '@/components/Loader';
+import axios from 'axios';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const Profile = () => {
   const router = useRouter();
@@ -134,30 +135,30 @@ const Profile = () => {
       if (file) {
         payload.append('file', file);
       }
-      
       try {
-        const response = await fetch(`${apiBaseURL}/api/updateprofile/`, {
-          method: 'POST',
-          body: payload,
-        });
-        if (response.ok) {
-          const result = await response.json();
-          setMessage(result.message);
-          sessionStorage.setItem('userName', formData.vfirst_name);
-          if(result.user_image_path) sessionStorage.setItem('userImage', result.user_image_path);
-          setTimeout(() => {
-            setMessage('');
-          }, 1000);
-        } else {
-          throw new Error('Failed to upload image');
-        }
+        const response = await axios.post(`${apiBaseURL}/api/updateprofile/`, payload);
+        const result = response.data;
+        console.log(result)
+        setMessage(result.message);
+        sessionStorage.setItem('userName', formData.vfirst_name);
+        if (result.user_image_path) sessionStorage.setItem('userImage', result.user_image_path);
+        setTimeout(() => {
+          setMessage('');
+        }, 1000);
         setIsLoading(false);
-      } catch (error) {
-        setError('Error uploading image: ' + error);
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err) && err.response?.data?.errors) {  
+            const apiErrors: Record<string, string> = {};
+            (err.response.data.errors as { field: string; error: string }[]).forEach(error => {
+                apiErrors[error.field] = error.error;
+                console.log(error.error)
+            });
+            setErrors(apiErrors); // ✅ Ensure you're setting errors in setErrors, NOT setFormData
+        } 
         setIsLoading(false);
       }
+    };
     }
-  };
   const styles = {
       error: {
         color: 'red',

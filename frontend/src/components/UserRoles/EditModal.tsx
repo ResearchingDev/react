@@ -3,6 +3,7 @@ import {InputField, Label, SelectField} from '@/components/Forms/FormFields';
 import Modal from 'react-modal';
 import { toast } from "react-toastify";
 import Loader from '@/components/Loader';
+import axios from 'axios';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
   interface EditModalProps {
     isOpen: boolean; // For the modal's open state
@@ -58,27 +59,29 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
       setIsLoading(true);
       const payload = { userRole, status, _id};
       try {
-        const response = await fetch(`${apiBaseURL}/api/manageuserrole/`, {
-          method: "POST",
+        await axios.post(`${apiBaseURL}/api/manageuserrole/`, payload, {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(payload),
-        });
-    
-        const data = await response.json();
-    
-        if (response.ok) {
-          toast.success(data.message);
-          setFormData({ _id:"", userRole: "", status: "" });
-          fetchData(page, perPage);
-          onClose();
-        } else {
-          toast.error(data.message || "Failed to add user role.");
-        }
-        setIsLoading(false);
-      } catch (error) {
+        })
+        .then(response => {
+          toast.success(response.data.message);
+          setFormData({ _id: "", userRole: "", status: "" }); // Clear the form data
+          fetchData(page, perPage); // Refresh the data
+          setIsLoading(false);
+          onClose(); // Close the modal
+        })
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err) && err.response?.data?.errors) {  
+          const apiErrors: Record<string, string> = {};
+          (err.response.data.errors as { field: string; error: string }[]).forEach(error => {
+              apiErrors[error.field] = error.error;
+              console.log(error.error)
+          });
+          setErrors(apiErrors); // ✅ Ensure you're setting errors in setErrors, NOT setFormData
+      } else {
         toast.error("Network error. Please try again.");
+      }
         setIsLoading(false);
       }
     };

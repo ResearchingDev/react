@@ -11,7 +11,7 @@ interface EditModalProps {
   isOpen: boolean;
   IsisAction: string;
   onClose: () => void;
-  itemDetails: { estatus: string; vfirst_name: string; vlast_name: string; vpassword: string; vphone_number: number; vprofile_image: string; vuser_name: string; vemail: string;  irole_id: string; } | null; // Details of the selected user or null
+  itemDetails: { _id: string; estatus: string; vfirst_name: string; vlast_name: string; vpassword: string; vphone_number: string; vprofile_image: string; vuser_name: string; vemail: string;  irole_id: string; } | null; // Details of the selected user or null
   page: number;
   perPage: number;
   fetchData: (page: number, perPage: number) => Promise<void>; 
@@ -205,6 +205,10 @@ const EditModal: React.FC<EditModalProps> = ({
         if (IsisAction !== 'Edit User') {
           url = `${apiBaseURL}/api/add-user/`; // Set URL for add-user
         } else {
+          if (itemDetails) {
+            console.log(itemDetails._id)
+            formDataToSubmit.append('user_id', itemDetails._id);
+          }
           url = `${apiBaseURL}/api/edit-user/`; // Set URL for edit-user
         }
       await axios.post(url, formDataToSubmit, {
@@ -235,9 +239,18 @@ const EditModal: React.FC<EditModalProps> = ({
       })
         fetchData(page, perPage);
         onClose();
-      } catch (error) {
+      }catch (err: unknown) {
+        if (axios.isAxiosError(err) && err.response?.data?.errors) {  
+            const apiErrors: Record<string, string> = {};
+            (err.response.data.errors as { field: string; error: string }[]).forEach(error => {
+                apiErrors[error.field] = error.error;
+            });
+            setErrors(apiErrors); // ✅ Ensure you're setting errors in setErrors, NOT setFormData
+        } else {
+          console.log('An unexpected error occurred.');
+        }
         setIsLoading(false);
-      }
+    }
     } else {
       console.log('Form has errors');
     }

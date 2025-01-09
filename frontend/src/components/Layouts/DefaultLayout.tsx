@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
-import Loader from "@/components/common/Loader";
+import Loader from "@/components/Loader";
 
 export default function DefaultLayout({
   children,
