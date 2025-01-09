@@ -120,7 +120,7 @@ const DataTableComponent: React.FC = () => {
     }
   };
   const handleAdd = (row: any) => {
-    setSelectedItem(row);
+    setSelectedItem(null);
     setIsModalOpen(true);
     setIsisAction('Add User Role');
   };
