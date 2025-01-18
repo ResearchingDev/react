@@ -10,6 +10,18 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
     IsisAction: string;
     onClose: () => void; // Callback function to close the modal
     itemDetails: { _id: string; vrole_name: string; estatus: string } | null; // Details of the selected user or null
+    userModSections: {
+      iModuleId: number;
+      eMenuType: string;
+      vModuleName: string;
+      iModAll: boolean;
+      iModList: boolean;
+      iModView: boolean;
+      iModAdd: boolean;
+      iModUpdate: boolean;
+      iModDelete: boolean;
+      iModExport: boolean;
+    }[];
     fetchData: (page: number, perPage: number) => Promise<void>; // Add fetchData prop
     page: number;
     perPage: number;
@@ -18,7 +30,18 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
     userRole?: string;
     status?: string;
   };
-  const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemDetails, IsisAction, fetchData, page, perPage }) => {
+  interface Permission {
+    isAll?: boolean;
+    isList?: boolean;
+    isView?: boolean;
+    isAdd?: boolean;
+    isUpdate?: boolean;
+    isDelete?: boolean;
+    isExport?: boolean;
+  }
+  
+  type PermissionsState = Record<number, Permission>;
+  const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemDetails, IsisAction, fetchData, page, perPage,userModSections }) => {
     const [errors, setErrors] = useState<Errors>({});
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -26,6 +49,19 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
       userRole: '',
       status: '',
     });
+    const [permissions, setPermissions] = useState({});
+
+    // Handle checkbox change
+    const handleCheckboxChange = (moduleId: number, field: keyof Permission) => 
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        setPermissions((prevPermissions: PermissionsState) => ({
+          ...prevPermissions,
+          [moduleId]: {
+            ...prevPermissions[moduleId],
+            [field]: event.target.checked,
+          },
+        }));
+      };
     /**Reset FormData */
     function resetFormData() {
       setFormData({ _id: "", userRole: "", status: "" });  // Reset all fields to empty strings or your defaults
@@ -155,6 +191,129 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
           {errors.status && <p className='err' style={styles.error}>{errors.status}</p>}
           </div>
           <div>
+              <table className="table table-bordered text-center" id="role_datatable">
+          <thead>
+            <tr>
+              <th className="text-left">Select Module</th>
+              <th className="text-left">Select Sub Module</th>
+              <th>All</th>
+              <th>List</th>
+              <th>View</th>
+              <th>Add</th>
+              <th>Edit</th>
+              <th>Delete</th>
+              <th>Export</th>
+            </tr>
+          </thead>
+          <tbody>
+            {userModSections?.map((section) => (
+              <tr key={section.iModuleId}>
+                <td className="text-left">
+                  <strong>{section.eMenuType === 'Module' ? section.vModuleName : ''}</strong>
+                </td>
+                <td className="text-left">
+                  {section.eMenuType !== 'Module' ? section.vModuleName : ''}
+                </td>
+                <td>
+                  {section.iModAll ? (
+                    <input
+                      type="checkbox"
+                      name={`permissions[${section.iModuleId}][isAll]`}
+                      className="menu_all"
+                      value="1"
+                      onChange={handleCheckboxChange(section.iModuleId, 'isAll')}
+                    />
+                  ) : (
+                    'N/A'
+                  )}
+                </td>
+                <td>
+                  {section.iModList ? (
+                    <input
+                      type="checkbox"
+                      name={`permissions[${section.iModuleId}][isList]`}
+                      className="allow_access"
+                      value="1"
+                      onChange={handleCheckboxChange(section.iModuleId, 'isList')}
+                    />
+                  ) : (
+                    'N/A'
+                  )}
+                </td>
+                <td>
+                  {section.iModView ? (
+                    <input
+                      type="checkbox"
+                      name={`permissions[${section.iModuleId}][isView]`}
+                      className="allow_access"
+                      value="1"
+                      defaultChecked={
+                        section.vModuleName === 'trackAsset Dashboard' && section.iModView
+                      }
+                      onChange={handleCheckboxChange(section.iModuleId, 'isView')}
+                    />
+                  ) : (
+                    'N/A'
+                  )}
+                </td>
+                <td>
+                  {section.iModAdd ? (
+                    <input
+                      type="checkbox"
+                      name={`permissions[${section.iModuleId}][isAdd]`}
+                      className="allow_access"
+                      value="1"
+                      onChange={handleCheckboxChange(section.iModuleId, 'isAdd')}
+                    />
+                  ) : (
+                    'N/A'
+                  )}
+                </td>
+                <td>
+                  {section.iModUpdate ? (
+                    <input
+                      type="checkbox"
+                      name={`permissions[${section.iModuleId}][isUpdate]`}
+                      className="allow_access"
+                      value="1"
+                      onChange={handleCheckboxChange(section.iModuleId, 'isUpdate')}
+                    />
+                  ) : (
+                    'N/A'
+                  )}
+                </td>
+                <td>
+                  {section.iModDelete ? (
+                    <input
+                      type="checkbox"
+                      name={`permissions[${section.iModuleId}][isDelete]`}
+                      className="allow_access"
+                      value="1"
+                      onChange={handleCheckboxChange(section.iModuleId, 'isDelete')}
+                    />
+                  ) : (
+                    'N/A'
+                  )}
+                </td>
+                <td>
+                  {section.iModExport ? (
+                    <input
+                      type="checkbox"
+                      name={`permissions[${section.iModuleId}][isExport]`}
+                      className="allow_access"
+                      value="1"
+                      onChange={handleCheckboxChange(section.iModuleId, 'isExport')}
+                    />
+                  ) : (
+                    'N/A'
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+          </div>
+          <div>
             <button  type="submit" className="float-right rounded-md bg-primary px-6 py-2 text-white hover:bg-opacity-90 xl:px-6"  disabled={isLoading}>
               Save
             </button>
@@ -173,5 +332,4 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
       </Modal>
     );
 };
-
 export default EditModal;

@@ -20,6 +20,22 @@ const DataTableComponent: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAction, setIsisAction] = useState<string>('Add User Role');
+
+  const userModSections = [
+    {
+      iModuleId: 1,
+      eMenuType: "Module",
+      vModuleName: "Dashboard",
+      iModAll: true,
+      iModList: false,
+      iModView: true,
+      iModAdd: false,
+      iModUpdate: true,
+      iModDelete: false,
+      iModExport: true,
+    },
+    // More objects...
+  ];
   const fetchData = async (page: number, perPage: number) => {
     setLoading(true);
     try {
@@ -167,6 +183,7 @@ const DataTableComponent: React.FC = () => {
         data-row ={setSelectedItem}
         IsisAction ={isAction}
         fetchData={fetchData} 
+        userModSections={userModSections} 
         page={page} 
         perPage={perPage}
       />
