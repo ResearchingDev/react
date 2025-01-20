@@ -19,8 +19,8 @@ from django.urls import path
 from server.auth.views import SignupAPIView, SigninAPIView, CsrfAPIView, ForgetPasswordAPIView, ResetPasswordAPIView, SignoutAPIView
 from server.users.views import UserAPIView,UserListView,UserDeleteView,UserEditAPIView,UserRolesAPIView
 from server.masters.views import RoleAddOrUpdate, RecordListView, ProfileList, ProfileAddOrUpdate, DeleteItemView
-from server.settings.views import LeaveTypeAddOrUpdate,LeaveTypeListView
-
+from server.settings.leave_type.views import LeaveTypeAddOrUpdate,LeaveTypeListView,DeleteLeaveType
+from server.settings.holiday.views import HolidayAddOrUpdate,HolidayListView,DeleteHoliday
 from server.views import home  # Import the new view
 from django.conf import settings
 from django.conf.urls.static import static
@@ -43,8 +43,12 @@ urlpatterns = [
     path('api/delete-item/<str:item_id>/', DeleteItemView.as_view(), name='delete-item'),
     path('api/edit-user/', UserEditAPIView.as_view(), name='edit-user'),
     path('api/user-roles/', UserRolesAPIView.as_view(), name='user-roles'),
-    path('api/leave-type/', LeaveTypeAddOrUpdate.as_view(), name='leave-type'), # Manage User Roles API
-    path('api/leave-type-list/', LeaveTypeListView.as_view(), name='leave-type-list'),
+    path('api/leave-type/', LeaveTypeAddOrUpdate.as_view(), name='leave-type'), # Manage Leave API - Add/Update
+    path('api/leave-type-list/', LeaveTypeListView.as_view(), name='leave-type-list'), # List Leave API
+    path('api/leave-type/delete/<str:item_id>/', DeleteLeaveType.as_view(), name='delete-leave-type'), # Delete Leave API
+    path('api/holiday/', HolidayAddOrUpdate.as_view(), name='holiday'), # Manage Holiday API - Add/Update
+    path('api/holiday-list/', HolidayListView.as_view(), name='holiday-list'), # List Holiday API
+    path('api/holiday/delete/<str:item_id>/', DeleteHoliday.as_view(), name='delete-holiday'), # Delete Holiday API
 ]
 
 if settings.DEBUG:  # Ensures this only applies during development

@@ -105,7 +105,7 @@ class SignupAPIView(APIView):
                         signup_err.append({"error": "Username already exists!", "field": "user_name"})
                     if user["vemail"] == email:
                         signup_err.append({"error": "Email already registered!", "field": "email"})
-                    if user["vphone_number"] == phone_number:
+                    if phone_number and user["vphone_number"] == phone_number:
                         signup_err.append({"error": "Phone number already exists!", "field": "phone_number"})
 
                 if signup_err:

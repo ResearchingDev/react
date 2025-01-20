@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useState,useEffect } from 'react';
 import { FaEdit, FaTrashAlt, FaPlus } from 'react-icons/fa';
 import DataTable from 'react-data-table-component';
-import LeaveTypeModal from './LeaveTypeModal';
+import HolidayModal from './HolidayModal';
 import Swal from "sweetalert2";
 import { deleteItem } from '../../api/user';
 const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -16,11 +16,11 @@ const DataTableComponent: React.FC = () => {
    const [totalRows, setTotalRows] = useState<number>(0);
    const [selectedItem, setSelectedItem] = useState(null);
    const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAction, setIsisAction] = useState<string>('Add Leave Type');
+  const [isAction, setIsisAction] = useState<string>('Add Holiday');
   const fetchData = async (page: number, perPage: number) => {
   setLoading(true);
   try {
-    const response = await axios.get(`${apiBaseURL}/api/leave-type-list/`, {
+    const response = await axios.get(`${apiBaseURL}/api/holiday-list/`, {
       params: { page, per_page: perPage },
     });
     setData(response.data.data);
@@ -42,8 +42,8 @@ const DataTableComponent: React.FC = () => {
   }, [page, perPage]);
   const columns = [
     {
-      name: 'Leave Type',
-      selector: (row: any) => row.vleave_type,
+      name: 'Holiday',
+      selector: (row: any) => row.vholiday,
       sortable: true,
     },
     {
@@ -84,16 +84,16 @@ const DataTableComponent: React.FC = () => {
   const handleAdd = (row: any) => {
     setSelectedItem(null);
     setIsModalOpen(true);
-    setIsisAction('Add Leave Type');
+    setIsisAction('Add Holiday');
   };
   const handleEdit = (row: any) => {
       setSelectedItem(row);
       setIsModalOpen(true);
-      setIsisAction('Edit Leave Type');
+      setIsisAction('Edit Holiday');
     };
     
   const handleDelete = async (itemId: string) => {
-    const url = `${apiBaseURL}/api/leave-type/delete/${itemId}/`
+    const url = `${apiBaseURL}/api/holiday/delete/${itemId}/`
     const confirmed = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -118,7 +118,7 @@ const DataTableComponent: React.FC = () => {
     <div>
     <div className='main-page min-w-full border-collapse rounded-xl'>
     <DataTable
-      title="Leave Type List"
+      title="Holiday List"
       columns={columns}
       data={data}
       progressPending={loading}
@@ -134,12 +134,12 @@ const DataTableComponent: React.FC = () => {
             onClick={() => handleAdd(data)}
             >
             <FaPlus className="mr-2" />
-            Add Leave Type
+            Add Holiday
         </button>
       }
     />
     </div>
-    <LeaveTypeModal
+    <HolidayModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         itemDetails={selectedItem}
