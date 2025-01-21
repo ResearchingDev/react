@@ -11,7 +11,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
     onClose: () => void; // Callback function to close the modal
     itemDetails: { _id: string; vrole_name: string; estatus: string } | null; // Details of the selected user or null
     userModSections: {
-      iModuleId: number;
+      _id: number;
       eMenuType: string;
       vModuleName: string;
       iModAll: boolean;
@@ -93,7 +93,10 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
         return;
       }
       setIsLoading(true);
-      const payload = formData;
+      const payload = {
+        ...formData,
+        permissions, // Include permissions in the request
+      };
       try {
         await axios.post(`${apiBaseURL}/api/manageuserrole/`, payload, {
           headers: {
@@ -115,7 +118,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
               apiErrors[error.field] = error.error;
               console.log(error.error)
           });
-          setErrors(apiErrors); // ✅ Ensure you're setting errors in setErrors, NOT setFormData
+          setErrors(apiErrors);
       } else {
         toast.error("Network error. Please try again.");
       }
@@ -207,7 +210,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
           </thead>
           <tbody>
             {userModSections?.map((section) => (
-              <tr key={section.iModuleId} className="bg-gray-2 text-left dark:bg-meta-4">
+              <tr key={section._id} className="bg-gray-2 text-left dark:bg-meta-4">
                 <td className="text-left">
                   <strong>{section.eMenuType === 'Module' ? section.vModuleName : ''}</strong>
                 </td>
@@ -218,10 +221,10 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                   {section.iModAll ? (
                     <input
                       type="checkbox"
-                      name={`permissions[${section.iModuleId}][isAll]`}
+                      name={`permissions[${section._id}][isAll]`}
                       className="menu_all"
                       value="1"
-                      onChange={handleCheckboxChange(section.iModuleId, 'isAll')}
+                      onChange={handleCheckboxChange(section._id, 'isAll')}
                     />
                   ) : (
                     'N/A'
@@ -231,10 +234,10 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                   {section.iModList ? (
                     <input
                       type="checkbox"
-                      name={`permissions[${section.iModuleId}][isList]`}
+                      name={`permissions[${section._id}][isList]`}
                       className="allow_access"
                       value="1"
-                      onChange={handleCheckboxChange(section.iModuleId, 'isList')}
+                      onChange={handleCheckboxChange(section._id, 'isList')}
                     />
                   ) : (
                     'N/A'
@@ -244,13 +247,13 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                   {section.iModView ? (
                     <input
                       type="checkbox"
-                      name={`permissions[${section.iModuleId}][isView]`}
+                      name={`permissions[${section._id}][isView]`}
                       className="allow_access"
                       value="1"
                       defaultChecked={
                         section.vModuleName === 'trackAsset Dashboard' && section.iModView
                       }
-                      onChange={handleCheckboxChange(section.iModuleId, 'isView')}
+                      onChange={handleCheckboxChange(section._id, 'isView')}
                     />
                   ) : (
                     'N/A'
@@ -260,10 +263,10 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                   {section.iModAdd ? (
                     <input
                       type="checkbox"
-                      name={`permissions[${section.iModuleId}][isAdd]`}
+                      name={`permissions[${section._id}][isAdd]`}
                       className="allow_access"
                       value="1"
-                      onChange={handleCheckboxChange(section.iModuleId, 'isAdd')}
+                      onChange={handleCheckboxChange(section._id, 'isAdd')}
                     />
                   ) : (
                     'N/A'
@@ -273,10 +276,10 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                   {section.iModUpdate ? (
                     <input
                       type="checkbox"
-                      name={`permissions[${section.iModuleId}][isUpdate]`}
+                      name={`permissions[${section._id}][isUpdate]`}
                       className="allow_access"
                       value="1"
-                      onChange={handleCheckboxChange(section.iModuleId, 'isUpdate')}
+                      onChange={handleCheckboxChange(section._id, 'isUpdate')}
                     />
                   ) : (
                     'N/A'
@@ -286,10 +289,10 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                   {section.iModDelete ? (
                     <input
                       type="checkbox"
-                      name={`permissions[${section.iModuleId}][isDelete]`}
+                      name={`permissions[${section._id}][isDelete]`}
                       className="allow_access"
                       value="1"
-                      onChange={handleCheckboxChange(section.iModuleId, 'isDelete')}
+                      onChange={handleCheckboxChange(section._id, 'isDelete')}
                     />
                   ) : (
                     'N/A'
@@ -299,10 +302,10 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
                   {section.iModExport ? (
                     <input
                       type="checkbox"
-                      name={`permissions[${section.iModuleId}][isExport]`}
+                      name={`permissions[${section._id}][isExport]`}
                       className="allow_access"
                       value="1"
-                      onChange={handleCheckboxChange(section.iModuleId, 'isExport')}
+                      onChange={handleCheckboxChange(section._id, 'isExport')}
                     />
                   ) : (
                     'N/A'

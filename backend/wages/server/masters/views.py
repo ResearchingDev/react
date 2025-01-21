@@ -5,6 +5,7 @@ from datetime import datetime  # Import datetime for timestamps
 from server.db import users_role_collection # Import Mongo wa_users collection
 from server.db import users_collection # Import Mongo wa_users collection
 from server.db import wa_modules # Import Mongo wa_modules collection
+from server.db import user_role_rights # Import Mongo user_role_rights collection
 from django.views.decorators.csrf import csrf_exempt
 from ..serializers import RoleSerializer  # Import the serializer
 from bson import ObjectId
@@ -25,6 +26,7 @@ class RoleAddOrUpdate(APIView):
                 data = request.data  # Get the incoming data
                 # Check if '_id' is present (optional)
                 role_id = data.get('_id')  # This will return None if '_id' is not present
+                permissions = data.get('permissions', {})
                 # Check if the role already exists
                 if role_id and role_id!='':
                     _id = request.data.get('_id')
@@ -56,7 +58,8 @@ class RoleAddOrUpdate(APIView):
                             }
                         )
                         if updated_role.modified_count > 0:
-                            return Response({"message": "Role updated successfully"})
+                            user_role_rights.delete_many({"iUserRoleId": _id})
+                            new_role_id = _id
                         else:
                             return Response({"message": "No changes made to the role"}, status=status.HTTP_304_NOT_MODIFIED)
                 else:
@@ -84,7 +87,32 @@ class RoleAddOrUpdate(APIView):
                             "dupdated_at": "",
                         }
                         result = users_role_collection.insert_one(new_role)
-                        return Response(
+                        new_role_id = result.inserted_id
+                        
+            # Insert permissions (only once)
+            print(f"Inserted {permissions} permission entries")
+            permission_entries = [
+                {
+                    "iUserRoleId": new_role_id,
+                    "iModuleId": str(module_id),
+                    "isAll": int(bool(sections.get("isAll"))),
+                    "isList": int(bool(sections.get("isList"))),
+                    "isView": int(bool(sections.get("isView"))),
+                    "isAdd": int(bool(sections.get("isAdd"))),
+                    "isUpdate": int(bool(sections.get("isUpdate"))),
+                    "isDelete": int(bool(sections.get("isDelete"))),
+                    "isExport": int(bool(sections.get("isExport"))),
+                    "dAddedDate": datetime.utcnow()
+                }
+                for module_id, sections in permissions.items()
+            ]
+            
+            if permission_entries:
+                user_role_rights.insert_many(permission_entries)
+                if role_id and role_id!='':
+                    return Response({"message": "Role updated successfully","role_id": new_role_id})
+                else:
+                    return Response(
                             {
                                 "message": "Role Created successfully",
                                 "role_id": str(result.inserted_id)
@@ -112,9 +140,76 @@ class RecordListView(APIView):
                       .skip(skip)
                       .limit(rows_per_page)
         )
-        wa_module_list = list(
-            wa_modules.find({"iSysRecDeleted": {"$ne": 1}})
-        )
+        # wa_module_list = list(
+        #     wa_modules.find({"iSysRecDeleted": {"$ne": 1}})
+        # )
+
+        pipeline = [
+    {
+        # Step 1: Match and fetch modules where 'iSysRecDeleted' is not 1
+        "$match": {
+            "iSysRecDeleted": { "$ne": 1 }
+        }
+    },
+    {
+        # Step 2: Use $lookup to join with the user_role_rights collection
+        "$lookup": {
+            "from": "user_role_rights",  # The target collection
+            "let": { "moduleId": "$iModuleId","roleId": "$iUserRoleId" },  # Variables from the modules collection
+            "pipeline": [
+                {
+                    "$match": {
+                        "$expr": {
+                            "$and": [
+                                { "$eq": ["$iModuleId", "$$moduleId"] },
+                                { "$eq": ["$iUserRoleId", "$$roleId"] },
+                                { "$eq": ["$iSysRecDeleted", 0] }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "$project": {  # Select only the relevant fields to return
+                        "isAll": 1,
+                        "isList": 1,
+                        "isView": 1,
+                        "isAdd": 1,
+                        "isUpdate": 1,
+                        "isDelete": 1,
+                        "isExport": 1
+                    }
+                }
+            ],
+            "as": "roleRights"  # Name of the field to store the joined results
+        }
+    },
+    {
+        # Step 3: Unwind the 'roleRights' array so we can add its data to each module
+        "$unwind": {
+            "path": "$roleRights",  # Unwind the array
+            "preserveNullAndEmptyArrays": True  # Ensure we keep the module even if no rights are found
+        }
+    },
+    {
+        # Step 4: Add default values for the rights if not found in the 'roleRights'
+        "$addFields": {
+           "isAll": {"$cond": {"if": "$roleRights.isAll", "then": 1, "else": 0}},
+            "isList": {"$cond": {"if": "$roleRights.isList", "then": 1, "else": 0}},
+            "isView": {"$cond": {"if": "$roleRights.isView", "then": 1, "else": 0}},
+            "isAdd": {"$cond": {"if": "$roleRights.isAdd", "then": 1, "else": 0}},
+            "isUpdate": {"$cond": {"if": "$roleRights.isUpdate", "then": 1, "else": 0}},
+            "isDelete": {"$cond": {"if": "$roleRights.isDelete", "then": 1, "else": 0}},
+            "isExport": {"$cond": {"if": "$roleRights.isExport", "then": 1, "else": 0}}
+        }
+    },
+    {
+        # Step 5: Optionally, sort the results by 'iSequenceNo'
+        "$sort": { "iSequenceNo": 1 }
+    }
+]
+
+        # Execute the aggregation pipeline on your MongoDB collection
+        wa_module_list = list(wa_modules.aggregate(pipeline))
         for record in records:
             record["_id"] = str(record["_id"])
         for module in wa_module_list:
