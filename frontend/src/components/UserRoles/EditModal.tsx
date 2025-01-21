@@ -152,7 +152,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
             bottom: 'auto',
             marginRight: '-50%',
             transform: 'translate(-50%, -50%)',
-            width: '400px',
+            width: '800px',
             padding: '20px',
             borderRadius: '8px',
           },
@@ -191,9 +191,9 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
           {errors.status && <p className='err' style={styles.error}>{errors.status}</p>}
           </div>
           <div>
-              <table className="table table-bordered text-center" id="role_datatable">
+          <table className="w-full table-auto" id="role_datatable">
           <thead>
-            <tr>
+            <tr className="bg-gray-2 text-left dark:bg-meta-4">
               <th className="text-left">Select Module</th>
               <th className="text-left">Select Sub Module</th>
               <th>All</th>
@@ -207,7 +207,7 @@ const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
           </thead>
           <tbody>
             {userModSections?.map((section) => (
-              <tr key={section.iModuleId}>
+              <tr key={section.iModuleId} className="bg-gray-2 text-left dark:bg-meta-4">
                 <td className="text-left">
                   <strong>{section.eMenuType === 'Module' ? section.vModuleName : ''}</strong>
                 </td>
