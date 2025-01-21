@@ -4,6 +4,7 @@ from rest_framework import status
 from datetime import datetime  # Import datetime for timestamps
 from server.db import users_role_collection # Import Mongo wa_users collection
 from server.db import users_collection # Import Mongo wa_users collection
+from server.db import wa_modules # Import Mongo wa_modules collection
 from django.views.decorators.csrf import csrf_exempt
 from ..serializers import RoleSerializer  # Import the serializer
 from bson import ObjectId
@@ -111,11 +112,17 @@ class RecordListView(APIView):
                       .skip(skip)
                       .limit(rows_per_page)
         )
+        wa_module_list = list(
+            wa_modules.find({"iSysRecDeleted": {"$ne": 1}})
+        )
         for record in records:
             record["_id"] = str(record["_id"])
+        for module in wa_module_list:
+            module["_id"] = str(module["_id"])
         return Response({
             "total": total_records,
             "data": records,
+            "modules": wa_module_list,
             "page": page,
             "per_page": rows_per_page,
         })

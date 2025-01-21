@@ -248,7 +248,7 @@ const EditModal: React.FC<EditModalProps> = ({
             (err.response.data.errors as { field: string; error: string }[]).forEach(error => {
                 apiErrors[error.field] = error.error;
             });
-            setErrors(apiErrors); // ✅ Ensure you're setting errors in setErrors, NOT setFormData
+            setErrors(apiErrors);
         } else {
           console.log('An unexpected error occurred.');
         }
