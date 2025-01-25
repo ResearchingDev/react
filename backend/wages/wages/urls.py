@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from server.auth.views import SignupAPIView, SigninAPIView, CsrfAPIView, ForgetPasswordAPIView, ResetPasswordAPIView, SignoutAPIView
 from server.users.views import UserAPIView,UserListView,UserDeleteView,UserEditAPIView,UserRolesAPIView
-from server.masters.views import RoleAddOrUpdate, RecordListView, ProfileList, ProfileAddOrUpdate, DeleteItemView
+from server.masters.views import RoleAddOrUpdate, RecordListView, ProfileList, ProfileAddOrUpdate, DeleteItemView, GetMenuList
 from server.settings.leave_type.views import LeaveTypeAddOrUpdate,LeaveTypeListView,DeleteLeaveType
 from server.settings.holiday.views import HolidayAddOrUpdate,HolidayListView,DeleteHoliday
 from server.views import home  # Import the new view
@@ -49,6 +49,7 @@ urlpatterns = [
     path('api/holiday/', HolidayAddOrUpdate.as_view(), name='holiday'), # Manage Holiday API - Add/Update
     path('api/holiday-list/', HolidayListView.as_view(), name='holiday-list'), # List Holiday API
     path('api/holiday/delete/<str:item_id>/', DeleteHoliday.as_view(), name='delete-holiday'), # Delete Holiday API
+    path('api/getmenulist/', GetMenuList.as_view(), name='getmenulist'), # Menu List API
 ]
 
 if settings.DEBUG:  # Ensures this only applies during development

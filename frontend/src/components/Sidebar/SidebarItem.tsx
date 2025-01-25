@@ -32,7 +32,7 @@ const SidebarItem = ({ item, pageName, setPageName }: any) => {
         >
           {item.icon}
           {item.label}
-          {item.children && (
+          {item.children && item.children.length > 0 && (
             <svg
               className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${
                 pageName === item.label.toLowerCase() && "rotate-180"

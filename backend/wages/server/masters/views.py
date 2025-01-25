@@ -191,15 +191,56 @@ class RecordListView(APIView):
         }
     },
     {
-        # Step 4: Add default values for the rights if not found in the 'roleRights'
         "$addFields": {
-           "isAll": {"$cond": {"if": "$roleRights.isAll", "then": 1, "else": 0}},
-            "isList": {"$cond": {"if": "$roleRights.isList", "then": 1, "else": 0}},
-            "isView": {"$cond": {"if": "$roleRights.isView", "then": 1, "else": 0}},
-            "isAdd": {"$cond": {"if": "$roleRights.isAdd", "then": 1, "else": 0}},
-            "isUpdate": {"$cond": {"if": "$roleRights.isUpdate", "then": 1, "else": 0}},
-            "isDelete": {"$cond": {"if": "$roleRights.isDelete", "then": 1, "else": 0}},
-            "isExport": {"$cond": {"if": "$roleRights.isExport", "then": 1, "else": 0}}
+            "isAll": {
+                "$cond": {
+                    "if": { "$eq": [{ "$ifNull": ["$roleRights.isAll", False] }, True] },
+                    "then": 1,
+                    "else": 0
+                }
+            },
+            "isList": {
+                "$cond": {
+                    "if": { "$eq": [{ "$ifNull": ["$roleRights.isList", False] }, True] },
+                    "then": 1,
+                    "else": 0
+                }
+            },
+            "isView": {
+                "$cond": {
+                    "if": { "$eq": [{ "$ifNull": ["$roleRights.isView", False] }, True] },
+                    "then": 1,
+                    "else": 0
+                }
+            },
+            "isAdd": {
+                "$cond": {
+                    "if": { "$eq": [{ "$ifNull": ["$roleRights.isAdd", False] }, True] },
+                    "then": 1,
+                    "else": 0
+                }
+            },
+            "isUpdate": {
+                "$cond": {
+                    "if": { "$eq": [{ "$ifNull": ["$roleRights.isUpdate", False] }, True] },
+                    "then": 1,
+                    "else": 0
+                }
+            },
+            "isDelete": {
+                "$cond": {
+                    "if": { "$eq": [{ "$ifNull": ["$roleRights.isDelete", False] }, True] },
+                    "then": 1,
+                    "else": 0
+                }
+            },
+            "isExport": {
+                "$cond": {
+                    "if": { "$eq": [{ "$ifNull": ["$roleRights.isExport", False] }, True] },
+                    "then": 1,
+                    "else": 0
+                }
+            }
         }
     },
     {
@@ -345,3 +386,13 @@ class DeleteItemView(APIView):
                 return Response({"message": "Role deleted successfully."}, status=200)
             else:
                 return Response({"error": "Role not found."}, status=404)
+            
+class GetMenuList(APIView):
+    def get(self, request):
+        menus = list(wa_modules.find({}, {"_id": 1, "vModuleName": 1, "tModuleUrl": 1, "iParentId": 1, "tIcon": 1}))
+
+        # Convert ObjectId to string
+        for menu in menus:
+            menu["_id"] = str(menu["_id"])
+        
+        return Response({"menus": menus}, status=200)
